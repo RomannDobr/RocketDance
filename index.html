@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>RocketDance</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="visualizer"></canvas>
+  <div id="centerText">RocketDance</div>
+
+  <div id="controls">
+    <button id="startBtn">🎵 Запустить цветомузыку</button>
+    <button id="fullscreenBtn">⛶ Полный экран</button>
+    <div class="dropdown">
+      <button id="modeBtn">✨ Эффект: <span id="currentMode">💥 Вспышки</span></button>
+      <div class="dropdown-content">
+        <div data-mode="0">💥 Вспышки</div>
+        <div data-mode="1">📊 Спектр</div>
+        <div data-mode="2">💓 Пульс</div>
+        <div data-mode="auto">🔄 Авто-смена</div>
+      </div>
+    </div>
+    <div class="sensitivity-control">
+      <span>🎚️</span>
+      <input type="range" id="sensitivitySlider" min="0.5" max="3.0" step="0.1" value="1.5">
+      <span id="sensitivityValue">1.5</span>
+    </div>
+  </div>
+
+  <div id="uploadPanel" style="display:none;">
+    <input type="file" id="imageUpload" accept="image/png">
+  </div>
+
+  <div id="notification" class="notification"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
