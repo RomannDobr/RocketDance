@@ -23,13 +23,40 @@ let beatIntensity = 0;
 
 // Синхронизация по времени
 let nextEffectChangeTime = null;
-const EFFECT_DURATION = 6000;
+const EFFECT_DURATION = 6000; // 6 секунд
+
+// Синхронизация времени между устройствами
+let timeOffset = 0;
 
 // === Инициализация ===
-document.addEventListener('DOMContentLoaded', () => {
-    initializeShow();
+document.addEventListener('DOMContentLoaded', async () => {
+    await initializeShow();
     setupEventListeners();
 });
+
+// === Синхронизация времени ===
+async function synchronizeTime() {
+    try {
+        const response = await fetch('https://worldtimeapi.org/api/ip');
+        if (!response.ok) throw new Error('Ошибка сервера времени');
+
+        const data = await response.json();
+        const serverTimeMs = data.unixtime * 1000;
+        const localTimeMs = Date.now();
+        timeOffset = serverTimeMs - localTimeMs;
+
+        console.log(`Время синхронизировано. Смещение: ${timeOffset} мс`);
+        return timeOffset;
+    } catch (error) {
+        console.warn('Не удалось синхронизировать время, используется локальное:', error);
+        timeOffset = 0;
+        return 0;
+    }
+}
+
+function getSyncedTime() {
+    return Date.now() + timeOffset;
+}
 
 // === Уведомления ===
 function showNotification(message, duration = 2000) {
@@ -68,6 +95,7 @@ function toggleFullscreen() {
 // === Инициализация шоу ===
 async function initializeShow() {
     try {
+        await synchronizeTime();
         await startMicrophone();
         startSynchronizedShow();
         showNotification('🎵 Цветомузыка запущена!', 3000);
@@ -85,27 +113,27 @@ async function startMicrophone() {
     }
 
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
+        const stream = await navigator.mediaDevices.getUserMedia({
             audio: {
                 echoCancellation: false,
                 noiseSuppression: false,
                 autoGainControl: false
-            } 
+            }
         });
 
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         analyser = audioCtx.createAnalyser();
         analyser.fftSize = 256;
         analyser.smoothingTimeConstant = 0.8;
-        
+
         dataArray = new Uint8Array(analyser.frequencyBinCount);
-        
+
         source = audioCtx.createMediaStreamSource(stream);
         source.connect(analyser);
-        
+
         console.log('Микрофон подключен');
         return true;
-        
+
     } catch (error) {
         console.error('Ошибка микрофона:', error);
         throw error;
@@ -114,34 +142,55 @@ async function startMicrophone() {
 
 // === Демо-режим ===
 function startDemoMode() {
-    nextEffectChangeTime = Date.now() + EFFECT_DURATION;
-    currentEffect = "0";
+    calculateNextEffectTime();
+    currentEffect = getCurrentEffectForTime();
     isRunning = true;
     draw();
 }
 
 // === Запуск синхронизированного шоу ===
 function startSynchronizedShow() {
-    nextEffectChangeTime = Date.now() + EFFECT_DURATION;
-    currentEffect = "0";
+    calculateNextEffectTime();
+    currentEffect = getCurrentEffectForTime();
     isRunning = true;
     draw();
 }
 
+// === Расчет времени смены эффектов по глобальному времени ===
+function calculateNextEffectTime() {
+    const now = getSyncedTime();
+    const currentCycleTime = now % (EFFECT_DURATION * 3); // 3 эффекта по 6 секунд
+    const timeUntilNextEffect = EFFECT_DURATION - (currentCycleTime % EFFECT_DURATION);
+
+    nextEffectChangeTime = now + timeUntilNextEffect;
+}
+
+function getCurrentEffectForTime() {
+    const now = getSyncedTime();
+    const cyclePosition = Math.floor((now / EFFECT_DURATION) % 3);
+
+    switch (cyclePosition) {
+        case 0: return "0"; // Вспышки
+        case 1: return "1"; // Спектр
+        case 2: return "2"; // Пульс
+        default: return "0";
+    }
+}
+
 // === Автоматическая смена эффектов ===
 function updateEffectByTime() {
-    const now = Date.now();
-    
+    const now = getSyncedTime();
+
     if (now >= nextEffectChangeTime) {
         const effects = ["0", "1", "2"];
         const currentIndex = effects.indexOf(currentEffect);
         const nextIndex = (currentIndex + 1) % effects.length;
         currentEffect = effects[nextIndex];
-        
-        nextEffectChangeTime = now + EFFECT_DURATION;
+
+        calculateNextEffectTime();
         pulseCircles = [];
         beatHistory = [];
-        
+
         showNotification(`✨ ${modeName(currentEffect)}`);
     }
 }
@@ -158,25 +207,26 @@ function modeName(mode) {
 // === Основной цикл ===
 function draw(timestamp) {
     if (!isRunning) return;
-    
+
     frameId = requestAnimationFrame(draw);
-    
+
     let bass = 0, mid = 0, high = 0, overall = 0, brightness = 0.5;
 
     // Анализ аудио если микрофон доступен
     if (analyser && dataArray) {
         try {
             analyser.getByteFrequencyData(dataArray);
-            
-            bass = getFrequencyRange(dataArray, 1, 10);
+
+            // Басовый диапазон делаем менее чувствительным
+            bass = getFrequencyRange(dataArray, 1, 10) * 0.3; // Уменьшаем басы в 3 раза
             mid = getFrequencyRange(dataArray, 10, 50);
             high = getFrequencyRange(dataArray, 50, 100);
             overall = (bass + mid + high) / 3;
-            
+
             updateAutoSensitivity(overall);
             brightness = Math.min(1, (overall * autoSensitivity) / 128);
             detectRhythm(bass, mid, high);
-            
+
         } catch (error) {
             console.log('Ошибка анализа аудио');
         }
@@ -203,7 +253,7 @@ function draw(timestamp) {
 
     // Центральный текст
     updateCenterText(brightness, bass);
-    
+
     // Смена эффектов
     updateEffectByTime();
 }
@@ -212,11 +262,11 @@ function draw(timestamp) {
 function updateCenterText(brightness, bass) {
     const text = document.getElementById('centerText');
     text.style.opacity = 0.5 + brightness * 0.5;
-    
+
     if (analyser) {
         text.style.transform = `translate(-50%, -50%) scale(${1 + bass * 0.001})`;
     } else {
-        const demoScale = 1 + Math.sin(Date.now() * 0.003) * 0.1;
+        const demoScale = 1 + Math.sin(getSyncedTime() * 0.003) * 0.1;
         text.style.transform = `translate(-50%, -50%) scale(${demoScale})`;
     }
 }
@@ -227,16 +277,16 @@ function updateAutoSensitivity(overallVolume) {
         autoSensitivity = manualSensitivity;
         return;
     }
-    
+
     volumeHistory.push(overallVolume);
     if (volumeHistory.length > 50) {
         volumeHistory = volumeHistory.slice(-50);
     }
-    
+
     if (volumeHistory.length < 10) return;
-    
+
     const maxVolume = Math.max(...volumeHistory);
-    
+
     if (maxVolume < 30) {
         autoSensitivity = Math.min(3.0, autoSensitivity + 0.1);
     } else if (maxVolume > 200) {
@@ -255,67 +305,102 @@ function getFrequencyRange(data, start, end) {
 
 // === Детектор ритма ===
 function detectRhythm(bass, mid, high) {
-    const currentTime = Date.now();
-    const beatThreshold = 60 * autoSensitivity;
-    
-    const isBeat = (bass > beatThreshold || mid > beatThreshold * 0.8) && 
-                  currentTime - lastBeatTime > 150;
-    
+    const currentTime = getSyncedTime();
+    const beatThreshold = 50 * autoSensitivity; // Понижен порог для лучшей реакции
+
+    const isBeat = (bass > beatThreshold || mid > beatThreshold * 0.7) &&
+        currentTime - lastBeatTime > 150;
+
     if (isBeat) {
         beatIntensity = Math.max(bass, mid) / 255;
         lastBeatTime = currentTime;
         beatHistory.push(currentTime);
-        
+
         if (beatHistory.length > 10) {
             beatHistory = beatHistory.slice(-10);
         }
     }
 }
 
-// === Эффект Вспышки ===
+// === Эффект Вспышки (исправленная версия) ===
 function drawPulse(bass, mid, high, overall, brightness) {
-    const currentTime = Date.now();
-    
+    const currentTime = getSyncedTime();
+
     // Ограничиваем количество кругов
     if (pulseCircles.length > 20) {
         pulseCircles = pulseCircles.slice(-15);
     }
-    
-    // Создаем пульсации на битах
-    const beatThreshold = 70 * autoSensitivity;
-    if ((bass > beatThreshold || mid > beatThreshold * 0.8) && 
-        currentTime - lastPulseTime > 200) {
-        createPulseCircle(Math.max(bass, mid));
-        lastPulseTime = currentTime;
+
+    // Определяем уровень громкости для разных режимов
+    const silenceThreshold = 25;
+    const isSilent = overall < silenceThreshold;
+
+    if (isSilent) {
+        // В ТИШИНЕ: очень редкие и медленные пульсации
+        if (currentTime - lastPulseTime > 3000 + Math.random() * 5000) {
+            createCalmPulseCircle(overall);
+            lastPulseTime = currentTime;
+        }
+    } else {
+        // ПРИ МУЗЫКЕ: активная реакция на звук
+
+        // Сильные биты по басам и средним частотам
+        const beatThreshold = 60 * autoSensitivity;
+        const strongBeat = (bass > beatThreshold || mid > beatThreshold * 0.8);
+
+        if (strongBeat && currentTime - lastPulseTime > 200) {
+            createPulseCircle(Math.max(bass, mid));
+            lastPulseTime = currentTime;
+        }
+        // Слабые пульсации на общую громкость
+        else if (overall > 50 && currentTime - lastPulseTime > 500 && Math.random() > 0.7) {
+            createPulseCircle(overall * 0.7);
+            lastPulseTime = currentTime;
+        }
     }
-    
-    // Создаем случайные пульсации
-    if (currentTime - lastPulseTime > 500 && Math.random() > 0.8) {
-        createPulseCircle(overall);
-        lastPulseTime = currentTime;
-    }
-    
+
     // Отрисовываем круги
     drawPulseCircles();
+}
+
+function createCalmPulseCircle(intensity) {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const maxSize = Math.max(canvas.width, canvas.height) * 1.5;
+
+    pulseCircles.push({
+        x: centerX,
+        y: centerY,
+        radius: 0,
+        maxRadius: maxSize,
+        hue: 200 + Math.random() * 160, // Спокойные тона
+        saturation: 30 + Math.random() * 20, // Низкая насыщенность
+        lightness: 40 + Math.random() * 15,
+        alpha: 0.2 + intensity * 0.001, // Очень прозрачные
+        speed: 5 + Math.random() * 3, // Очень медленные
+        life: 1.0,
+        decay: 0.008 // Медленное затухание
+    });
 }
 
 function createPulseCircle(intensity) {
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
     const maxSize = Math.max(canvas.width, canvas.height) * 2;
-    
+
+    // Более яркие и быстрые круги при музыке
     pulseCircles.push({
         x: centerX,
         y: centerY,
         radius: 0,
         maxRadius: maxSize,
         hue: Math.random() * 360,
-        saturation: 80 + Math.random() * 20,
-        lightness: 70 + Math.random() * 20,
-        alpha: 0.7 + intensity * 0.002,
-        speed: 30 + Math.random() * 20,
+        saturation: 85 + Math.random() * 15,
+        lightness: 75 + Math.random() * 15,
+        alpha: 0.8 + intensity * 0.003, // Более яркие
+        speed: 35 + Math.random() * 25, // Быстрее
         life: 1.0,
-        decay: 0.03
+        decay: 0.04 // Быстрее исчезают
     });
 }
 
@@ -323,32 +408,32 @@ function drawPulseCircles() {
     for (let i = pulseCircles.length - 1; i >= 0; i--) {
         const circle = pulseCircles[i];
         const intensity = circle.life;
-        
+
         const gradient = ctx.createRadialGradient(
             circle.x, circle.y, 0,
             circle.x, circle.y, circle.radius
         );
-        
+
         gradient.addColorStop(0, `hsla(${circle.hue}, ${circle.saturation}%, ${circle.lightness}%, ${circle.alpha * intensity})`);
         gradient.addColorStop(0.5, `hsla(${circle.hue}, ${circle.saturation}%, ${circle.lightness * 0.8}%, ${circle.alpha * intensity * 0.5})`);
         gradient.addColorStop(1, `hsla(${circle.hue}, ${circle.saturation}%, ${circle.lightness * 0.6}%, 0)`);
-        
+
         ctx.fillStyle = gradient;
         ctx.beginPath();
         ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
         ctx.fill();
-        
+
         circle.radius += circle.speed;
         circle.life -= circle.decay;
         circle.speed *= 0.98;
-        
+
         if (circle.life <= 0 || circle.radius > circle.maxRadius) {
             pulseCircles.splice(i, 1);
         }
     }
 }
 
-// === Эффект Спектр ===
+// === Эффект Спектр (с уменьшенной чувствительностью басов) ===
 function drawSpectrumBars(bass, mid, high, brightness) {
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
@@ -361,13 +446,19 @@ function drawSpectrumBars(bass, mid, high, brightness) {
         const startFreq = i * 5;
         const endFreq = (i + 1) * 5;
         let value = getFrequencyRange(dataArray, startFreq, endFreq) * autoSensitivity;
-        
+
+        // Особенная обработка для самой левой (басовой) колонки
+        if (i === 0) {
+            value *= 0.3; // Уменьшаем басы в 3 раза
+        }
         // Усиливаем высокие частоты
-        if (i > 6) value *= 2;
-        
+        else if (i > 6) {
+            value *= 2;
+        }
+
         const barHeight = Math.max(20, value * canvas.height * 0.003);
         const hue = (i / totalBars) * 360;
-        
+
         const x = centerX - totalWidth / 2 + i * (barWidth + spacing);
 
         // Верхняя часть
@@ -389,7 +480,7 @@ function drawSpectrumBars(bass, mid, high, brightness) {
 // === Эффект Пульс (Сердце) ===
 function drawHeart(bass, mid, high, overall, brightness) {
     const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2; // Поднято выше
+    const centerY = canvas.height / 2;
 
     const baseSize = Math.min(canvas.width, canvas.height) * 0.12;
     const pulseIntensity = 1 + (overall * autoSensitivity * 0.02);
@@ -431,13 +522,14 @@ function drawHeart(bass, mid, high, overall, brightness) {
 
 // === Демо-режим эффектов ===
 function drawDemoPulse() {
-    const currentTime = Date.now();
-    
-    if (currentTime - lastPulseTime > 800) {
-        createPulseCircle(150);
+    const currentTime = getSyncedTime();
+
+    // В демо-режиме тоже медленные пульсации
+    if (currentTime - lastPulseTime > 2000) {
+        createCalmPulseCircle(150);
         lastPulseTime = currentTime;
     }
-    
+
     drawPulseCircles();
 }
 
@@ -448,11 +540,18 @@ function drawDemoSpectrum() {
     const barWidth = canvas.width * 0.06;
     const spacing = canvas.width * 0.01;
     const totalWidth = totalBars * (barWidth + spacing);
-    
-    const wave = Math.sin(Date.now() * 0.005);
+
+    const wave = Math.sin(getSyncedTime() * 0.005);
 
     for (let i = 0; i < totalBars; i++) {
-        const barHeight = 30 + Math.abs(Math.sin(Date.now() * 0.005 + i * 0.3)) * 80;
+        // Первая колонка (басы) в демо-режиме тоже меньше
+        let barHeight;
+        if (i === 0) {
+            barHeight = 30 + Math.abs(Math.sin(getSyncedTime() * 0.005 + i * 0.3)) * 40;
+        } else {
+            barHeight = 30 + Math.abs(Math.sin(getSyncedTime() * 0.005 + i * 0.3)) * 80;
+        }
+
         const hue = (i / totalBars) * 360;
         const x = centerX - totalWidth / 2 + i * (barWidth + spacing);
 
@@ -470,7 +569,7 @@ function drawDemoHeart() {
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
 
-    const pulse = Math.sin(Date.now() * 0.004) * 0.15 + 1;
+    const pulse = Math.sin(getSyncedTime() * 0.004) * 0.15 + 1;
     const baseSize = Math.min(canvas.width, canvas.height) * 0.12;
     const heartSize = baseSize * pulse;
 
@@ -482,9 +581,9 @@ function drawDemoHeart() {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    const lightness = 60 + Math.sin(Date.now() * 0.005) * 10;
+    const lightness = 60 + Math.sin(getSyncedTime() * 0.005) * 10;
     const mainColor = `hsl(0, 90%, ${lightness}%)`;
-    
+
     ctx.fillStyle = mainColor;
     ctx.fillText('❤️', 0, 0);
 
