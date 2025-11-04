@@ -20,10 +20,6 @@ let beatHistory = [];
 let lastBeatTime = 0;
 let beatIntensity = 0;
 
-// Синхронизация по времени
-let nextEffectChangeTime = null;
-const EFFECT_DURATION = 6000; // 6 секунд
-
 // Синхронизация времени между устройствами
 let timeOffset = 0;
 
@@ -61,26 +57,19 @@ function getSyncedTime() {
     return Date.now() + timeOffset;
 }
 
-// === Отображение счётчика секунд ===
-function drawSecondsCounter() {
+// === Определение текущего эффекта по глобальным секундам ===
+function getCurrentEffectByGlobalTime() {
     const now = getSyncedTime();
-    const seconds = Math.floor(now / 1000) % 60;
-    const effectSeconds = Math.floor((now % EFFECT_DURATION) / 1000);
+    const totalSeconds = Math.floor(now / 1000);
+    const cycleSecond = totalSeconds % 18; // 18-секундный цикл (3 эффекта по 6 секунд)
     
-    ctx.save();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-    ctx.font = 'bold 24px Arial, sans-serif';
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'top';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-    ctx.shadowBlur = 4;
-    ctx.shadowOffsetX = 2;
-    ctx.shadowOffsetY = 2;
-    
-    // Отображаем глобальные секунды и секунды эффекта
-    ctx.fillText(`${seconds}.${Math.floor((now % 1000) / 100)}s (${effectSeconds}s)`, canvas.width - 20, 20);
-    
-    ctx.restore();
+    if (cycleSecond < 6) {
+        return "0"; // 0-5 секунд: Вспышки
+    } else if (cycleSecond < 12) {
+        return "1"; // 6-11 секунд: Спектр
+    } else {
+        return "2"; // 12-17 секунд: Пульс
+    }
 }
 
 // === Уведомления (только для статуса) ===
@@ -167,56 +156,26 @@ async function startMicrophone() {
 
 // === Демо-режим ===
 function startDemoMode() {
-    calculateNextEffectTime();
-    currentEffect = getCurrentEffectForTime();
+    currentEffect = getCurrentEffectByGlobalTime();
     isRunning = true;
     draw();
 }
 
 // === Запуск синхронизированного шоу ===
 function startSynchronizedShow() {
-    calculateNextEffectTime();
-    currentEffect = getCurrentEffectForTime();
+    currentEffect = getCurrentEffectByGlobalTime();
     isRunning = true;
     draw();
 }
 
-// === Расчет времени смены эффектов по глобальному времени ===
-function calculateNextEffectTime() {
-    const now = getSyncedTime();
-    const currentCycleTime = now % (EFFECT_DURATION * 3);
-    const timeUntilNextEffect = EFFECT_DURATION - (currentCycleTime % EFFECT_DURATION);
-    
-    nextEffectChangeTime = now + timeUntilNextEffect;
-}
-
-function getCurrentEffectForTime() {
-    const now = getSyncedTime();
-    const cyclePosition = Math.floor((now / EFFECT_DURATION) % 3);
-    
-    switch (cyclePosition) {
-        case 0: return "0";
-        case 1: return "1";
-        case 2: return "2";
-        default: return "0";
-    }
-}
-
 // === Автоматическая смена эффектов ===
 function updateEffectByTime() {
-    const now = getSyncedTime();
+    const newEffect = getCurrentEffectByGlobalTime();
     
-    if (now >= nextEffectChangeTime) {
-        const effects = ["0", "1", "2"];
-        const currentIndex = effects.indexOf(currentEffect);
-        const nextIndex = (currentIndex + 1) % effects.length;
-        currentEffect = effects[nextIndex];
-        
-        calculateNextEffectTime();
+    if (newEffect !== currentEffect) {
+        currentEffect = newEffect;
         pulseCircles = [];
         beatHistory = [];
-        
-        // Убрали уведомление о смене эффекта
     }
 }
 
@@ -270,9 +229,6 @@ function draw(timestamp) {
     // Центральный текст
     updateCenterText(brightness, bass);
     
-    // Счётчик секунд
-    drawSecondsCounter();
-    
     // Смена эффектов
     updateEffectByTime();
 }
@@ -325,10 +281,10 @@ function getFrequencyRange(data, start, end) {
 // === Детектор ритма ===
 function detectRhythm(bass, mid, high) {
     const currentTime = getSyncedTime();
-    const beatThreshold = 40 * autoSensitivity; // Понижен порог для лучшей реакции
+    const beatThreshold = 40 * autoSensitivity;
     
     const isBeat = (bass > beatThreshold || mid > beatThreshold * 0.6) && 
-                  currentTime - lastBeatTime > 120; // Уменьшен интервал между битами
+                  currentTime - lastBeatTime > 120;
     
     if (isBeat) {
         beatIntensity = Math.max(bass, mid) / 255;
@@ -351,7 +307,7 @@ function drawPulse(bass, mid, high, overall, brightness) {
     }
     
     // Определяем уровень громкости для разных режимов
-    const silenceThreshold = 20; // Понижен порог тишины
+    const silenceThreshold = 20;
     const isSilent = overall < silenceThreshold;
     
     if (isSilent) {
@@ -363,15 +319,15 @@ function drawPulse(bass, mid, high, overall, brightness) {
     } else {
         // ПРИ МУЗЫКЕ: АКТИВНАЯ реакция на звук
         
-        // Сильные биты по басам и средним частотам (пониженные пороги)
-        const beatThreshold = 35 * autoSensitivity; // Значительно понижен порог
+        // Сильные биты по басам и средним частотам
+        const beatThreshold = 35 * autoSensitivity;
         const strongBeat = (bass > beatThreshold || mid > beatThreshold * 0.5);
         
-        if (strongBeat && currentTime - lastPulseTime > 80) { // Уменьшен интервал
+        if (strongBeat && currentTime - lastPulseTime > 80) {
             createPulseCircle(Math.max(bass, mid));
             lastPulseTime = currentTime;
         }
-        // Слабые пульсации на общую громкость (более частые)
+        // Слабые пульсации на общую громкость
         else if (overall > 30 && currentTime - lastPulseTime > 300 && Math.random() > 0.4) {
             createPulseCircle(overall * 0.8);
             lastPulseTime = currentTime;
@@ -407,19 +363,18 @@ function createPulseCircle(intensity) {
     const centerY = canvas.height / 2;
     const maxSize = Math.max(canvas.width, canvas.height) * 2;
     
-    // Более яркие и быстрые круги при музыке
     pulseCircles.push({
         x: centerX,
         y: centerY,
         radius: 0,
         maxRadius: maxSize,
         hue: Math.random() * 360,
-        saturation: 90 + Math.random() * 10, // Повышена насыщенность
-        lightness: 80 + Math.random() * 15, // Повышена яркость
-        alpha: 0.9 + intensity * 0.004, // Более яркие и заметные
-        speed: 40 + Math.random() * 30, // Быстрее
+        saturation: 90 + Math.random() * 10,
+        lightness: 80 + Math.random() * 15,
+        alpha: 0.9 + intensity * 0.004,
+        speed: 40 + Math.random() * 30,
         life: 1.0,
-        decay: 0.05 // Быстрее исчезают
+        decay: 0.05
     });
 }
 
