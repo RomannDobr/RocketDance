@@ -26,7 +26,6 @@ let timeOffset = 0;
 // === Инициализация ===
 document.addEventListener('DOMContentLoaded', async () => {
     await initializeShow();
-    setupEventListeners();
 });
 
 // === Синхронизация времени ===
@@ -40,14 +39,13 @@ async function synchronizeTime() {
         const serverTimeMs = data.unixtime * 1000;
         const localTimeMs = Date.now();
         
-        // Учитываем время передачи данных
         const roundTripTime = Date.now() - startTime;
         timeOffset = serverTimeMs - localTimeMs + (roundTripTime / 2);
         
-        console.log(`Время синхронизировано. Смещение: ${timeOffset} мс, RTT: ${roundTripTime} мс`);
+        console.log(`Время синхронизировано. Смещение: ${timeOffset} мс`);
         return timeOffset;
     } catch (error) {
-        console.warn('Не удалось синхронизировать время, используется локальное:', error);
+        console.warn('Не удалось синхронизировать время:', error);
         timeOffset = 0;
         return 0;
     }
@@ -61,18 +59,18 @@ function getSyncedTime() {
 function getCurrentEffectByGlobalTime() {
     const now = getSyncedTime();
     const totalSeconds = Math.floor(now / 1000);
-    const cycleSecond = totalSeconds % 18; // 18-секундный цикл (3 эффекта по 6 секунд)
+    const cycleSecond = totalSeconds % 18;
     
     if (cycleSecond < 6) {
-        return "0"; // 0-5 секунд: Вспышки
+        return "0";
     } else if (cycleSecond < 12) {
-        return "1"; // 6-11 секунд: Спектр
+        return "1";
     } else {
-        return "2"; // 12-17 секунд: Пульс
+        return "2";
     }
 }
 
-// === Уведомления (только для статуса) ===
+// === Уведомления ===
 function showNotification(message, duration = 2000) {
     const notification = document.getElementById('notification');
     notification.textContent = message;
@@ -91,7 +89,6 @@ function setupEventListeners() {
         autoSensitivity = manualSensitivity;
     });
 
-    // Клик по canvas для полноэкранного режима
     canvas.addEventListener('click', toggleFullscreen);
 }
 
@@ -112,11 +109,15 @@ async function initializeShow() {
         await synchronizeTime();
         await startMicrophone();
         startSynchronizedShow();
+        setupEventListeners();
+        setupAdditionalControls();
         showNotification('🎵 Цветомузыка запущена!', 3000);
     } catch (error) {
         console.error('Ошибка инициализации:', error);
         showNotification('🔇 Демо-режим', 3000);
         startDemoMode();
+        setupEventListeners();
+        setupAdditionalControls();
     }
 }
 
@@ -557,6 +558,115 @@ function drawDemoHeart() {
     ctx.fillText('❤️', 0, 0);
 
     ctx.restore();
+}
+
+// === QR-код и закладки ===
+function setupAdditionalControls() {
+    const qrButton = document.getElementById('qrButton');
+    const bookmarkButton = document.getElementById('bookmarkButton');
+    const qrModal = document.getElementById('qrModal');
+    const closeQr = document.getElementById('closeQr');
+
+    // Генерация QR-кода
+    qrButton.addEventListener('click', () => {
+        generateQRCode();
+        qrModal.classList.add('show');
+    });
+
+    // Закрытие QR-модального окна
+    closeQr.addEventListener('click', () => {
+        qrModal.classList.remove('show');
+    });
+
+    // Закрытие по клику вне окна
+    qrModal.addEventListener('click', (e) => {
+        if (e.target === qrModal) {
+            qrModal.classList.remove('show');
+        }
+    });
+
+    // Добавление в закладки
+    bookmarkButton.addEventListener('click', () => {
+        addToBookmarks();
+    });
+}
+
+// Генерация QR-кода
+function generateQRCode() {
+    const qrCanvas = document.getElementById('qrCode');
+    const currentUrl = window.location.href;
+    
+    // Очищаем canvas
+    const ctx = qrCanvas.getContext('2d');
+    ctx.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
+    
+    // Генерируем QR-код
+    const qr = qrcode(0, 'M');
+    qr.addData(currentUrl);
+    qr.make();
+    
+    // Рисуем QR-код на canvas
+    const cellSize = 4;
+    const margin = 10;
+    const size = qr.getModuleCount() * cellSize + margin * 2;
+    
+    qrCanvas.width = size;
+    qrCanvas.height = size;
+    
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, size, size);
+    
+    ctx.fillStyle = 'black';
+    for (let row = 0; row < qr.getModuleCount(); row++) {
+        for (let col = 0; col < qr.getModuleCount(); col++) {
+            if (qr.isDark(row, col)) {
+                ctx.fillRect(
+                    col * cellSize + margin,
+                    row * cellSize + margin,
+                    cellSize,
+                    cellSize
+                );
+            }
+        }
+    }
+}
+
+// Добавление в закладки
+function addToBookmarks() {
+    const title = 'RocketDance - Цветомузыка';
+    const url = window.location.href;
+    
+    if (window.sidebar && window.sidebar.addPanel) {
+        // Firefox
+        window.sidebar.addPanel(title, url, '');
+    } else if (window.external && ('AddFavorite' in window.external)) {
+        // Internet Explorer
+        window.external.AddFavorite(url, title);
+    } else if (window.opera && window.print) {
+        // Opera
+        const elem = document.createElement('a');
+        elem.setAttribute('href', url);
+        elem.setAttribute('title', title);
+        elem.setAttribute('rel', 'sidebar');
+        elem.click();
+    } else {
+        // Современные браузеры
+        if (navigator.share) {
+            navigator.share({
+                title: title,
+                url: url
+            }).catch(() => {
+                showNotification('Скопируйте ссылку из адресной строки');
+            });
+        } else {
+            // Копирование в буфер обмена
+            navigator.clipboard.writeText(url).then(() => {
+                showNotification('📑 Ссылка скопирована в буфер обмена!');
+            }).catch(() => {
+                showNotification('📑 Скопируйте ссылку из адресной строки');
+            });
+        }
+    }
 }
 
 // === Обработчики событий ===
