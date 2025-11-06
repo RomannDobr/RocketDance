@@ -40,12 +40,12 @@ html, body {
 /* Контроллер */
 .controls {
     position: fixed;
-    bottom: 20px;
+    bottom: 25px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 2;
-    width: 90%;
-    max-width: 800px;
+    width: 95%;
+    max-width: 900px;
     transition: opacity 0.3s ease;
 }
 
@@ -54,43 +54,51 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 15px;
+    gap: 20px;
     width: 100%;
 }
 
 /* Боковые кнопки */
 .side-button {
     background: linear-gradient(135deg, 
-        rgba(0,0,0,0.8) 0%, 
-        rgba(20,20,40,0.8) 100%);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 12px;
-    width: 60px;
-    height: 60px;
+        rgba(0,0,0,0.85) 0%, 
+        rgba(25,25,45,0.85) 100%);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 16px;
+    width: 80px;
+    height: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(15px);
     flex-shrink: 0;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
 }
 
 .side-button:hover {
     background: linear-gradient(135deg, 
         rgba(0,0,0,0.9) 0%, 
-        rgba(40,40,80,0.9) 100%);
-    transform: scale(1.1);
-    border-color: rgba(255,255,255,0.3);
+        rgba(45,45,85,0.9) 100%);
+    transform: scale(1.12);
+    border-color: rgba(255,255,255,0.35);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.4);
 }
 
 .side-button:active {
-    transform: scale(0.95);
+    transform: scale(0.96);
+    transition: transform 0.1s ease;
 }
 
 .button-icon {
-    font-size: 24px;
-    filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+    font-size: 32px;
+    filter: drop-shadow(0 0 8px rgba(255,255,255,0.6));
+    transition: transform 0.2s ease;
+}
+
+.side-button:hover .button-icon {
+    transform: scale(1.1);
 }
 
 /* Окно чувствительности */
@@ -98,91 +106,145 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    justify-content: flex-start;
+    gap: 3px;
     color: white;
-    flex: 1;
-    max-width: 400px;
+    width: 800px;
+    height: 80px;
     background: linear-gradient(135deg, 
-        rgba(0,0,0,0.8) 0%, 
-        rgba(20,20,40,0.8) 100%);
-    padding: 15px 20px;
-    border-radius: 15px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.15);
-    min-height: 60px;
+        rgba(0,0,0,0.85) 0%, 
+        rgba(25,25,45,0.85) 100%);
+    padding: 5px 30px 8px 30px;
+    border-radius: 20px;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+/* Верхняя строка с заголовком */
+.sensitivity-header {
+    display: flex;
+    align-items: center;
     justify-content: center;
+    width: 100%;
+    margin-bottom: 0;
+    padding-top: 0;
 }
 
 .sensitivity-label {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     color: #ff6b6b;
-    text-align: center;
+    text-shadow: 0 0 10px rgba(255,107,107,0.3);
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    margin-top: 2px;
+}
+
+/* Контейнер для слайдера */
+.sensitivity-slider-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin-top: 0;
+    padding-top: 0;
+    margin-bottom: 2px;
 }
 
 /* Слайдер */
 #sensitivitySlider {
     width: 100%;
-    height: 20px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 12px;
+    height: 28px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 16px;
     outline: none;
     -webkit-appearance: none;
     appearance: none;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.1);
+    margin: 0;
+    position: relative;
 }
 
+/* Webkit браузеры (Chrome, Safari, Edge) */
 #sensitivitySlider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 35px;
-    height: 35px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     background: #ff6b6b;
     cursor: pointer;
-    box-shadow: 0 0 15px rgba(255,107,107,0.5);
-    border: 2px solid white;
+    box-shadow: 0 0 25px rgba(255,107,107,0.7),
+                0 4px 12px rgba(0,0,0,0.3);
+    border: 3px solid white;
     transition: all 0.2s ease;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-top: 0;
 }
 
 #sensitivitySlider::-webkit-slider-thumb:hover {
-    transform: scale(1.1);
+    transform: translateY(-50%) scale(1.18);
+    box-shadow: 0 0 30px rgba(255,107,107,0.9),
+                0 6px 15px rgba(0,0,0,0.4);
 }
 
-#sensitivitySlider::-moz-range-thumb {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    background: #ff6b6b;
-    cursor: pointer;
-    box-shadow: 0 0 15px rgba(255,107,107,0.5);
-    border: 2px solid white;
+#sensitivitySlider::-webkit-slider-thumb:active {
+    transform: translateY(-50%) scale(1.05);
 }
 
 #sensitivitySlider::-webkit-slider-runnable-track {
     width: 100%;
-    height: 8px;
-    background: linear-gradient(90deg, #4CAF50, #FFC107, #FF5722);
-    border-radius: 8px;
+    height: 12px;
+    background: linear-gradient(90deg, 
+        #4CAF50 0%, 
+        #8BC34A 20%, 
+        #FFC107 40%, 
+        #FF9800 60%, 
+        #FF5722 80%, 
+        #F44336 100%);
+    border-radius: 12px;
+    border: none;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Firefox */
+#sensitivitySlider::-moz-range-thumb {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #ff6b6b;
+    cursor: pointer;
+    box-shadow: 0 0 25px rgba(255,107,107,0.7),
+                0 4px 12px rgba(0,0,0,0.3);
+    border: 3px solid white;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+#sensitivitySlider::-moz-range-thumb:hover {
+    transform: scale(1.18);
+    box-shadow: 0 0 30px rgba(255,107,107,0.9),
+                0 6px 15px rgba(0,0,0,0.4);
 }
 
 #sensitivitySlider::-moz-range-track {
     width: 100%;
-    height: 8px;
-    background: linear-gradient(90deg, #4CAF50, #FFC107, #FF5722);
-    border-radius: 8px;
+    height: 12px;
+    background: linear-gradient(90deg, 
+        #4CAF50 0%, 
+        #8BC34A 20%, 
+        #FFC107 40%, 
+        #FF9800 60%, 
+        #FF5722 80%, 
+        #F44336 100%);
+    border-radius: 12px;
     border: none;
-}
-
-#sensitivityValue {
-    font-size: 20px;
-    font-weight: bold;
-    color: #ff6b6b;
-    min-width: 45px;
-    text-align: center;
-    background: rgba(0,0,0,0.5);
-    padding: 6px 12px;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.2);
 }
 
 /* Скрываем контроллер в полноэкранном режиме */
@@ -201,91 +263,296 @@ body:-ms-fullscreen .controls {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.85);
     display: none;
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    backdrop-filter: blur(10px);
 }
 
 .qr-modal.show {
     display: flex;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .qr-content {
-    background: linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.9) 100%);
-    padding: 20px;
-    border-radius: 15px;
+    background: linear-gradient(135deg, 
+        rgba(0,0,0,0.95) 0%, 
+        rgba(30,30,50,0.95) 100%);
+    padding: 30px;
+    border-radius: 20px;
     text-align: center;
-    border: 1px solid rgba(255,255,255,0.15);
-    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    animation: scaleIn 0.3s ease;
+}
+
+@keyframes scaleIn {
+    from { 
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to { 
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.qr-content h3 {
+    color: white;
+    margin-bottom: 20px;
+    font-size: 22px;
+    font-weight: 600;
+    text-shadow: 0 0 10px rgba(255,255,255,0.3);
 }
 
 #qrCode {
-    width: 200px;
-    height: 200px;
-    margin: 10px 0;
+    width: 220px;
+    height: 220px;
+    margin: 15px 0;
+    border-radius: 12px;
+    background: white;
+    padding: 10px;
 }
 
 .qr-text {
-    color: white;
-    font-size: 14px;
-    margin-top: 10px;
+    color: rgba(255,255,255,0.9);
+    font-size: 15px;
+    margin-top: 15px;
+    line-height: 1.4;
+    max-width: 250px;
 }
 
 .close-qr {
-    background: #ff6b6b;
+    background: linear-gradient(135deg, #ff6b6b, #ff5252);
     color: white;
     border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
+    padding: 12px 24px;
+    border-radius: 12px;
     cursor: pointer;
-    margin-top: 10px;
-    font-size: 14px;
+    margin-top: 20px;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255,107,107,0.3);
 }
 
 .close-qr:hover {
-    background: #ff5252;
+    background: linear-gradient(135deg, #ff5252, #ff4040);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255,107,107,0.4);
+}
+
+.close-qr:active {
+    transform: translateY(0);
 }
 
 /* Уведомления */
 .notification {
     position: fixed;
-    top: 30px;
+    top: 35px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(0,0,0,0.85);
+    background: linear-gradient(135deg, 
+        rgba(0,0,0,0.9) 0%, 
+        rgba(25,25,45,0.9) 100%);
     color: white;
-    padding: 15px 25px;
-    border-radius: 15px;
+    padding: 18px 30px;
+    border-radius: 16px;
     z-index: 1000;
     opacity: 0;
-    transition: opacity 0.3s ease;
-    backdrop-filter: blur(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    backdrop-filter: blur(15px);
     border: 1px solid rgba(255,255,255,0.2);
     pointer-events: none;
     font-size: 16px;
     font-weight: 600;
     text-align: center;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
 }
 
 .notification.show {
     opacity: 1;
+    transform: translateX(-50%) translateY(0);
 }
 
 /* Адаптивность */
+@media (max-width: 900px) {
+    .sensitivity-control {
+        width: 95%;
+        max-width: 700px;
+        padding: 10px 25px;
+    }
+    
+    .sensitivity-label {
+        font-size: 16px;
+    }
+}
+
 @media (max-width: 768px) {
     #centerText {
-        font-size: 32px;
+        font-size: 34px;
+    }
+    
+    .controls {
+        bottom: 20px;
+        width: 96%;
+    }
+    
+    .controls-container {
+        gap: 15px;
+    }
+    
+    .side-button {
+        width: 65px;
+        height: 65px;
+        border-radius: 14px;
+    }
+    
+    .button-icon {
+        font-size: 26px;
+    }
+    
+    .sensitivity-control {
+        height: 70px;
+        padding: 8px 20px;
+        border-radius: 18px;
+        gap: 6px;
+    }
+    
+    .sensitivity-label {
+        font-size: 15px;
+    }
+    
+    #sensitivitySlider {
+        height: 24px;
+    }
+    
+    #sensitivitySlider::-webkit-slider-thumb {
+        width: 36px;
+        height: 36px;
+    }
+    
+    #sensitivitySlider::-moz-range-thumb {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .qr-content {
+        padding: 25px;
+        margin: 20px;
+    }
+    
+    #qrCode {
+        width: 200px;
+        height: 200px;
+    }
+    
+    .notification {
+        top: 25px;
+        padding: 15px 25px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 600px) {
+    .sensitivity-control {
+        height: auto;
+        padding: 8px 20px;
+        gap: 5px;
+    }
+    
+    .sensitivity-label {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    #centerText {
+        font-size: 28px;
     }
     
     .controls {
         bottom: 15px;
-        width: 95%;
+        width: 98%;
     }
     
     .controls-container {
         gap: 10px;
+    }
+    
+    .side-button {
+        width: 55px;
+        height: 55px;
+        border-radius: 12px;
+    }
+    
+    .button-icon {
+        font-size: 22px;
+    }
+    
+    .sensitivity-control {
+        padding: 6px 15px;
+        border-radius: 16px;
+        gap: 4px;
+    }
+    
+    .sensitivity-label {
+        font-size: 13px;
+    }
+    
+    #sensitivitySlider {
+        height: 20px;
+    }
+    
+    #sensitivitySlider::-webkit-slider-thumb {
+        width: 32px;
+        height: 32px;
+        border-width: 2px;
+    }
+    
+    #sensitivitySlider::-moz-range-thumb {
+        width: 32px;
+        height: 32px;
+        border-width: 2px;
+    }
+    
+    .qr-content {
+        padding: 20px;
+        margin: 15px;
+    }
+    
+    #qrCode {
+        width: 180px;
+        height: 180px;
+    }
+    
+    .qr-content h3 {
+        font-size: 18px;
+    }
+    
+    .qr-text {
+        font-size: 13px;
+    }
+    
+    .notification {
+        top: 20px;
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+}
+
+/* Очень маленькие экраны */
+@media (max-width: 360px) {
+    .controls-container {
+        gap: 8px;
     }
     
     .side-button {
@@ -298,69 +565,37 @@ body:-ms-fullscreen .controls {
     }
     
     .sensitivity-control {
-        padding: 12px 15px;
-        min-height: 50px;
-    }
-    
-    .sensitivity-label {
-        font-size: 14px;
-    }
-    
-    #sensitivityValue {
-        font-size: 18px;
-        padding: 5px 10px;
-    }
-}
-
-@media (max-width: 480px) {
-    #centerText {
-        font-size: 28px;
-    }
-    
-    .controls {
-        bottom: 10px;
-        width: 98%;
-    }
-    
-    .controls-container {
-        gap: 8px;
-    }
-    
-    .side-button {
-        width: 45px;
-        height: 45px;
-    }
-    
-    .button-icon {
-        font-size: 18px;
-    }
-    
-    .sensitivity-control {
-        padding: 10px 12px;
-        min-height: 45px;
+        padding: 5px 12px;
     }
     
     .sensitivity-label {
         font-size: 12px;
     }
-    
-    #sensitivitySlider {
-        height: 18px;
+}
+
+/* Анимации для плавного появления */
+.controls-container {
+    animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
     }
-    
-    #sensitivitySlider::-webkit-slider-thumb {
-        width: 30px;
-        height: 30px;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
-    
-    #sensitivityValue {
-        font-size: 16px;
-        padding: 4px 8px;
-    }
-    
-    .notification {
-        top: 20px;
-        padding: 12px 20px;
-        font-size: 14px;
+}
+
+/* Улучшение для темной темы */
+@media (prefers-color-scheme: dark) {
+    .side-button,
+    .sensitivity-control,
+    .qr-content {
+        background: linear-gradient(135deg, 
+            rgba(10,10,20,0.9) 0%, 
+            rgba(35,35,55,0.9) 100%);
     }
 }

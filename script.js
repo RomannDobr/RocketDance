@@ -81,11 +81,9 @@ function showNotification(message, duration = 2000) {
 // === Регулятор чувствительности ===
 function setupEventListeners() {
     const sensitivitySlider = document.getElementById('sensitivitySlider');
-    const sensitivityValue = document.getElementById('sensitivityValue');
 
     sensitivitySlider.addEventListener('input', (e) => {
         manualSensitivity = parseFloat(e.target.value);
-        sensitivityValue.textContent = manualSensitivity.toFixed(1);
         autoSensitivity = manualSensitivity;
     });
 
@@ -282,10 +280,10 @@ function getFrequencyRange(data, start, end) {
 // === Детектор ритма ===
 function detectRhythm(bass, mid, high) {
     const currentTime = getSyncedTime();
-    const beatThreshold = 40 * autoSensitivity;
+    const beatThreshold = 30 * autoSensitivity; // Уменьшен порог с 40 до 30
     
-    const isBeat = (bass > beatThreshold || mid > beatThreshold * 0.6) && 
-                  currentTime - lastBeatTime > 120;
+    const isBeat = (bass > beatThreshold || mid > beatThreshold * 0.5) && 
+                  currentTime - lastBeatTime > 100; // Уменьшена задержка с 120 до 100
     
     if (isBeat) {
         beatIntensity = Math.max(bass, mid) / 255;
@@ -303,17 +301,17 @@ function drawPulse(bass, mid, high, overall, brightness) {
     const currentTime = getSyncedTime();
     
     // Ограничиваем количество кругов
-    if (pulseCircles.length > 25) {
-        pulseCircles = pulseCircles.slice(-20);
+    if (pulseCircles.length > 30) { // Увеличено с 25 до 30
+        pulseCircles = pulseCircles.slice(-25); // Увеличено с 20 до 25
     }
     
     // Определяем уровень громкости для разных режимов
-    const silenceThreshold = 20;
+    const silenceThreshold = 15; // Уменьшен порог тишины с 20 до 15
     const isSilent = overall < silenceThreshold;
     
     if (isSilent) {
         // В ТИШИНЕ: редкие пульсации
-        if (currentTime - lastPulseTime > 2000 + Math.random() * 3000) {
+        if (currentTime - lastPulseTime > 1500 + Math.random() * 2000) { // Уменьшены задержки
             createCalmPulseCircle(overall);
             lastPulseTime = currentTime;
         }
@@ -321,15 +319,16 @@ function drawPulse(bass, mid, high, overall, brightness) {
         // ПРИ МУЗЫКЕ: АКТИВНАЯ реакция на звук
         
         // Сильные биты по басам и средним частотам
-        const beatThreshold = 35 * autoSensitivity;
+        const beatThreshold = 25 * autoSensitivity; // Уменьшен порог с 35 до 25
+        
         const strongBeat = (bass > beatThreshold || mid > beatThreshold * 0.5);
         
-        if (strongBeat && currentTime - lastPulseTime > 80) {
+        if (strongBeat && currentTime - lastPulseTime > 60) { // Уменьшена задержка с 80 до 60
             createPulseCircle(Math.max(bass, mid));
             lastPulseTime = currentTime;
         }
         // Слабые пульсации на общую громкость
-        else if (overall > 30 && currentTime - lastPulseTime > 300 && Math.random() > 0.4) {
+        else if (overall > 20 && currentTime - lastPulseTime > 200 && Math.random() > 0.3) { // Уменьшены пороги
             createPulseCircle(overall * 0.8);
             lastPulseTime = currentTime;
         }
@@ -352,10 +351,10 @@ function createCalmPulseCircle(intensity) {
         hue: 200 + Math.random() * 160,
         saturation: 30 + Math.random() * 20,
         lightness: 40 + Math.random() * 15,
-        alpha: 0.2 + intensity * 0.001,
-        speed: 5 + Math.random() * 3,
+        alpha: 0.3 + intensity * 0.002, // Увеличена прозрачность
+        speed: 6 + Math.random() * 4, // Увеличена скорость
         life: 1.0,
-        decay: 0.008
+        decay: 0.006 // Уменьшено затухание
     });
 }
 
@@ -372,10 +371,10 @@ function createPulseCircle(intensity) {
         hue: Math.random() * 360,
         saturation: 90 + Math.random() * 10,
         lightness: 80 + Math.random() * 15,
-        alpha: 0.9 + intensity * 0.004,
-        speed: 40 + Math.random() * 30,
+        alpha: 1.0 + intensity * 0.005, // Увеличена прозрачность
+        speed: 50 + Math.random() * 40, // Увеличена скорость
         life: 1.0,
-        decay: 0.05
+        decay: 0.04 // Уменьшено затухание
     });
 }
 

@@ -19,9 +19,12 @@
             </button>
             
             <div class="sensitivity-control">
-                <div class="sensitivity-label">Чувствительность</div>
-                <input type="range" id="sensitivitySlider" min="0.5" max="3.0" step="0.1" value="1.5">
-                <span id="sensitivityValue">1.5</span>
+                <div class="sensitivity-header">
+                    <div class="sensitivity-label">Чувствительность</div>
+                </div>
+                <div class="sensitivity-slider-container">
+                    <input type="range" id="sensitivitySlider" min="0.5" max="3.0" step="0.1" value="1.5">
+                </div>
             </div>
             
             <button class="side-button" id="bookmarkButton" title="Добавить в закладки">
