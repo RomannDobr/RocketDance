@@ -75,6 +75,26 @@ html, body {
     backdrop-filter: blur(15px);
     flex-shrink: 0;
     box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.side-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255,255,255,0.1), 
+        transparent);
+    transition: left 0.6s ease;
+}
+
+.side-button:hover::before {
+    left: 100%;
 }
 
 .side-button:hover {
@@ -83,7 +103,8 @@ html, body {
         rgba(45,45,85,0.9) 100%);
     transform: scale(1.12);
     border-color: rgba(255,255,255,0.35);
-    box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.4),
+                0 0 0 1px rgba(255,255,255,0.1);
 }
 
 .side-button:active {
@@ -91,9 +112,41 @@ html, body {
     transition: transform 0.1s ease;
 }
 
+/* Стили для SVG иконок */
+.button-icon svg {
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.8));
+    transition: all 0.3s ease;
+    width: 38px;
+    height: 38px;
+    color: rgba(255, 255, 255, 0.95);
+    transform: translateY(3px);
+}
+
+.side-button:hover .button-icon svg {
+    transform: translateY(3px) scale(1.1);
+    color: white;
+    filter: drop-shadow(0 0 15px rgba(255,255,255,0.9));
+}
+
+/* Усиленная подсветка для кнопки QR-кода */
+#qrButton .button-icon svg {
+    filter: drop-shadow(0 0 12px rgba(100, 200, 255, 0.6));
+}
+
+#qrButton:hover .button-icon svg {
+    filter: drop-shadow(0 0 20px rgba(100, 200, 255, 0.9));
+}
+
+/* Подсветка для кнопки закладки */
+#bookmarkButton .button-icon svg {
+    filter: drop-shadow(0 0 12px rgba(255, 200, 100, 0.6));
+}
+
+#bookmarkButton:hover .button-icon svg {
+    filter: drop-shadow(0 0 20px rgba(255, 200, 100, 0.9));
+}
+
 .button-icon {
-    font-size: 32px;
-    filter: drop-shadow(0 0 8px rgba(255,255,255,0.6));
     transition: transform 0.2s ease;
 }
 
@@ -118,7 +171,28 @@ html, body {
     border-radius: 20px;
     backdrop-filter: blur(15px);
     border: 1px solid rgba(255,255,255,0.2);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3),
+                0 0 0 1px rgba(255,255,255,0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.sensitivity-control::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255,255,255,0.05), 
+        transparent);
+    transition: left 0.8s ease;
+}
+
+.sensitivity-control:hover::before {
+    left: 100%;
 }
 
 /* Верхняя строка с заголовком */
@@ -165,6 +239,7 @@ html, body {
     border: 1px solid rgba(255,255,255,0.1);
     margin: 0;
     position: relative;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
 }
 
 /* Webkit браузеры (Chrome, Safari, Edge) */
@@ -177,7 +252,8 @@ html, body {
     background: #ff6b6b;
     cursor: pointer;
     box-shadow: 0 0 25px rgba(255,107,107,0.7),
-                0 4px 12px rgba(0,0,0,0.3);
+                0 4px 12px rgba(0,0,0,0.3),
+                0 0 0 2px rgba(255,255,255,0.8);
     border: 3px solid white;
     transition: all 0.2s ease;
     position: relative;
@@ -189,7 +265,9 @@ html, body {
 #sensitivitySlider::-webkit-slider-thumb:hover {
     transform: translateY(-50%) scale(1.18);
     box-shadow: 0 0 30px rgba(255,107,107,0.9),
-                0 6px 15px rgba(0,0,0,0.4);
+                0 6px 15px rgba(0,0,0,0.4),
+                0 0 0 3px rgba(255,255,255,0.9);
+    background: #ff5252;
 }
 
 #sensitivitySlider::-webkit-slider-thumb:active {
@@ -211,6 +289,7 @@ html, body {
     position: relative;
     top: 50%;
     transform: translateY(-50%);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
 }
 
 /* Firefox */
@@ -221,7 +300,8 @@ html, body {
     background: #ff6b6b;
     cursor: pointer;
     box-shadow: 0 0 25px rgba(255,107,107,0.7),
-                0 4px 12px rgba(0,0,0,0.3);
+                0 4px 12px rgba(0,0,0,0.3),
+                0 0 0 2px rgba(255,255,255,0.8);
     border: 3px solid white;
     transition: all 0.2s ease;
     position: relative;
@@ -230,7 +310,9 @@ html, body {
 #sensitivitySlider::-moz-range-thumb:hover {
     transform: scale(1.18);
     box-shadow: 0 0 30px rgba(255,107,107,0.9),
-                0 6px 15px rgba(0,0,0,0.4);
+                0 6px 15px rgba(0,0,0,0.4),
+                0 0 0 3px rgba(255,255,255,0.9);
+    background: #ff5252;
 }
 
 #sensitivitySlider::-moz-range-track {
@@ -245,6 +327,7 @@ html, body {
         #F44336 100%);
     border-radius: 12px;
     border: none;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
 }
 
 /* Скрываем контроллер в полноэкранном режиме */
@@ -290,8 +373,31 @@ body:-ms-fullscreen .controls {
     text-align: center;
     border: 1px solid rgba(255,255,255,0.2);
     backdrop-filter: blur(20px);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5),
+                0 0 0 1px rgba(255,255,255,0.1),
+                0 0 30px rgba(100, 200, 255, 0.3);
     animation: scaleIn 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.qr-content::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, 
+        transparent, 
+        rgba(100, 200, 255, 0.1), 
+        transparent);
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { transform: translateX(-50%) translateY(-50%) rotate(0deg); }
+    50% { transform: translateX(50%) translateY(50%) rotate(180deg); }
 }
 
 @keyframes scaleIn {
@@ -320,6 +426,8 @@ body:-ms-fullscreen .controls {
     border-radius: 12px;
     background: white;
     padding: 10px;
+    box-shadow: 0 0 20px rgba(100, 200, 255, 0.4);
+    border: 1px solid rgba(255,255,255,0.3);
 }
 
 .qr-text {
@@ -328,6 +436,7 @@ body:-ms-fullscreen .controls {
     margin-top: 15px;
     line-height: 1.4;
     max-width: 250px;
+    text-shadow: 0 0 5px rgba(255,255,255,0.2);
 }
 
 .close-qr {
@@ -342,12 +451,33 @@ body:-ms-fullscreen .controls {
     font-weight: 600;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(255,107,107,0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.close-qr::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255,255,255,0.2), 
+        transparent);
+    transition: left 0.6s ease;
+}
+
+.close-qr:hover::before {
+    left: 100%;
 }
 
 .close-qr:hover {
     background: linear-gradient(135deg, #ff5252, #ff4040);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255,107,107,0.4);
+    box-shadow: 0 6px 20px rgba(255,107,107,0.4),
+                0 0 0 1px rgba(255,255,255,0.1);
 }
 
 .close-qr:active {
@@ -375,7 +505,9 @@ body:-ms-fullscreen .controls {
     font-size: 16px;
     font-weight: 600;
     text-align: center;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3),
+                0 0 0 1px rgba(255,255,255,0.1),
+                0 0 20px rgba(100, 200, 255, 0.2);
 }
 
 .notification.show {
@@ -416,8 +548,14 @@ body:-ms-fullscreen .controls {
         border-radius: 14px;
     }
     
-    .button-icon {
-        font-size: 26px;
+    .button-icon svg {
+        width: 32px;
+        height: 32px;
+        transform: translateY(2px);
+    }
+    
+    .side-button:hover .button-icon svg {
+        transform: translateY(2px) scale(1.1);
     }
     
     .sensitivity-control {
@@ -494,8 +632,14 @@ body:-ms-fullscreen .controls {
         border-radius: 12px;
     }
     
-    .button-icon {
-        font-size: 22px;
+    .button-icon svg {
+        width: 28px;
+        height: 28px;
+        transform: translateY(1px);
+    }
+    
+    .side-button:hover .button-icon svg {
+        transform: translateY(1px) scale(1.1);
     }
     
     .sensitivity-control {
@@ -560,8 +704,14 @@ body:-ms-fullscreen .controls {
         height: 50px;
     }
     
-    .button-icon {
-        font-size: 20px;
+    .button-icon svg {
+        width: 26px;
+        height: 26px;
+        transform: translateY(1px);
+    }
+    
+    .side-button:hover .button-icon svg {
+        transform: translateY(1px) scale(1.1);
     }
     
     .sensitivity-control {
@@ -597,5 +747,69 @@ body:-ms-fullscreen .controls {
         background: linear-gradient(135deg, 
             rgba(10,10,20,0.9) 0%, 
             rgba(35,35,55,0.9) 100%);
+    }
+}
+
+/* Дополнительные эффекты подсветки */
+.side-button {
+    background: linear-gradient(135deg, 
+        rgba(0,0,0,0.85) 0%, 
+        rgba(25,25,45,0.85) 100%);
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3),
+                0 0 15px rgba(100, 200, 255, 0.1);
+}
+
+.side-button:hover {
+    box-shadow: 0 12px 30px rgba(0,0,0,0.4),
+                0 0 0 1px rgba(255,255,255,0.1),
+                0 0 25px rgba(100, 200, 255, 0.2);
+}
+
+/* Усиленная подсветка для центрального текста */
+#centerText {
+    text-shadow: 0 0 30px rgba(255,255,255,0.6),
+                 0 0 60px rgba(100, 200, 255, 0.3);
+}
+
+/* Подсветка для кнопки поделиться */
+#bookmarkButton .button-icon svg {
+    filter: drop-shadow(0 0 12px rgba(255, 200, 100, 0.6));
+    transform: translateY(3px) scale(1.05); /* Немного увеличиваем иконку share */
+}
+
+#bookmarkButton:hover .button-icon svg {
+    filter: drop-shadow(0 0 20px rgba(255, 200, 100, 0.9));
+    transform: translateY(3px) scale(1.15);
+}
+
+/* Адаптивность для иконки поделиться */
+@media (max-width: 768px) {
+    #bookmarkButton .button-icon svg {
+        transform: translateY(2px) scale(1.05);
+    }
+    
+    #bookmarkButton:hover .button-icon svg {
+        transform: translateY(2px) scale(1.15);
+    }
+}
+
+@media (max-width: 480px) {
+    #bookmarkButton .button-icon svg {
+        transform: translateY(1px) scale(1.05);
+    }
+    
+    #bookmarkButton:hover .button-icon svg {
+        transform: translateY(1px) scale(1.15);
+    }
+}
+
+@media (max-width: 360px) {
+    #bookmarkButton .button-icon svg {
+        transform: translateY(1px) scale(1.05);
+    }
+    
+    #bookmarkButton:hover .button-icon svg {
+        transform: translateY(1px) scale(1.15);
     }
 }
