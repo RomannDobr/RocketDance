@@ -87,54 +87,17 @@ function setupEventListeners() {
         autoSensitivity = manualSensitivity;
     });
 
-    canvas.addEventListener('click', handleCanvasClick);
+    canvas.addEventListener('click', toggleFullscreen);
 }
 
-// === Обработчик клика по canvas ===
-function handleCanvasClick() {
-    // Небольшая задержка для гарантии жеста пользователя
-    setTimeout(() => {
-        toggleFullscreen();
-    }, 10);
-}
-
-// === Улучшенный полноэкранный режим ===
+// === Полный экран по клику ===
 function toggleFullscreen() {
-    const doc = document.documentElement;
-    
-    // Проверяем, находимся ли мы в полноэкранном режиме
-    if (!document.fullscreenElement && 
-        !document.webkitFullscreenElement && 
-        !document.mozFullScreenElement &&
-        !document.msFullscreenElement) {
-        
-        // Пытаемся войти в полноэкранный режим
-        if (doc.requestFullscreen) {
-            doc.requestFullscreen().catch(err => {
-                console.log('Ошибка полноэкранного режима:', err);
-                showNotification('❌ Полноэкранный режим не поддерживается', 2000);
-            });
-        } else if (doc.webkitRequestFullscreen) {
-            doc.webkitRequestFullscreen();
-        } else if (doc.mozRequestFullScreen) {
-            doc.mozRequestFullScreen();
-        } else if (doc.msRequestFullscreen) {
-            doc.msRequestFullscreen();
-        } else {
-            showNotification('❌ Браузер не поддерживает полноэкранный режим', 2000);
-        }
-        
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            console.log('Полноэкранный режим не поддерживается');
+        });
     } else {
-        // Выход из полноэкранного режима
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-        } else if (document.mozCancelFullScreen) {
-            document.mozCancelFullScreen();
-        } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
-        }
+        document.exitFullscreen();
     }
 }
 
@@ -317,10 +280,10 @@ function getFrequencyRange(data, start, end) {
 // === Детектор ритма ===
 function detectRhythm(bass, mid, high) {
     const currentTime = getSyncedTime();
-    const beatThreshold = 30 * autoSensitivity;
+    const beatThreshold = 30 * autoSensitivity; // Уменьшен порог с 40 до 30
     
     const isBeat = (bass > beatThreshold || mid > beatThreshold * 0.5) && 
-                  currentTime - lastBeatTime > 100;
+                  currentTime - lastBeatTime > 100; // Уменьшена задержка с 120 до 100
     
     if (isBeat) {
         beatIntensity = Math.max(bass, mid) / 255;
@@ -333,37 +296,39 @@ function detectRhythm(bass, mid, high) {
     }
 }
 
-// === Эффект Вспышки ===
+// === Эффект Вспышки (повышенная чувствительность) ===
 function drawPulse(bass, mid, high, overall, brightness) {
     const currentTime = getSyncedTime();
     
     // Ограничиваем количество кругов
-    if (pulseCircles.length > 30) {
-        pulseCircles = pulseCircles.slice(-25);
+    if (pulseCircles.length > 30) { // Увеличено с 25 до 30
+        pulseCircles = pulseCircles.slice(-25); // Увеличено с 20 до 25
     }
     
     // Определяем уровень громкости для разных режимов
-    const silenceThreshold = 15;
+    const silenceThreshold = 15; // Уменьшен порог тишины с 20 до 15
     const isSilent = overall < silenceThreshold;
     
     if (isSilent) {
         // В ТИШИНЕ: редкие пульсации
-        if (currentTime - lastPulseTime > 1500 + Math.random() * 2000) {
+        if (currentTime - lastPulseTime > 1500 + Math.random() * 2000) { // Уменьшены задержки
             createCalmPulseCircle(overall);
             lastPulseTime = currentTime;
         }
     } else {
         // ПРИ МУЗЫКЕ: АКТИВНАЯ реакция на звук
-        const beatThreshold = 25 * autoSensitivity;
+        
+        // Сильные биты по басам и средним частотам
+        const beatThreshold = 25 * autoSensitivity; // Уменьшен порог с 35 до 25
         
         const strongBeat = (bass > beatThreshold || mid > beatThreshold * 0.5);
         
-        if (strongBeat && currentTime - lastPulseTime > 60) {
+        if (strongBeat && currentTime - lastPulseTime > 60) { // Уменьшена задержка с 80 до 60
             createPulseCircle(Math.max(bass, mid));
             lastPulseTime = currentTime;
         }
         // Слабые пульсации на общую громкость
-        else if (overall > 20 && currentTime - lastPulseTime > 200 && Math.random() > 0.3) {
+        else if (overall > 20 && currentTime - lastPulseTime > 200 && Math.random() > 0.3) { // Уменьшены пороги
             createPulseCircle(overall * 0.8);
             lastPulseTime = currentTime;
         }
@@ -386,10 +351,10 @@ function createCalmPulseCircle(intensity) {
         hue: 200 + Math.random() * 160,
         saturation: 30 + Math.random() * 20,
         lightness: 40 + Math.random() * 15,
-        alpha: 0.3 + intensity * 0.002,
-        speed: 6 + Math.random() * 4,
+        alpha: 0.3 + intensity * 0.002, // Увеличена прозрачность
+        speed: 6 + Math.random() * 4, // Увеличена скорость
         life: 1.0,
-        decay: 0.006
+        decay: 0.006 // Уменьшено затухание
     });
 }
 
@@ -406,10 +371,10 @@ function createPulseCircle(intensity) {
         hue: Math.random() * 360,
         saturation: 90 + Math.random() * 10,
         lightness: 80 + Math.random() * 15,
-        alpha: 1.0 + intensity * 0.005,
-        speed: 50 + Math.random() * 40,
+        alpha: 1.0 + intensity * 0.005, // Увеличена прозрачность
+        speed: 50 + Math.random() * 40, // Увеличена скорость
         life: 1.0,
-        decay: 0.04
+        decay: 0.04 // Уменьшено затухание
     });
 }
 
@@ -598,7 +563,6 @@ function drawDemoHeart() {
 function setupAdditionalControls() {
     const qrButton = document.getElementById('qrButton');
     const bookmarkButton = document.getElementById('bookmarkButton');
-    const fullscreenButton = document.getElementById('fullscreenButton');
     const qrModal = document.getElementById('qrModal');
     const closeQr = document.getElementById('closeQr');
 
@@ -619,9 +583,6 @@ function setupAdditionalControls() {
             qrModal.classList.remove('show');
         }
     });
-
-    // Кнопка полноэкранного режима
-    fullscreenButton.addEventListener('click', toggleFullscreen);
 
     // Добавление в закладки
     bookmarkButton.addEventListener('click', () => {
@@ -716,15 +677,10 @@ window.addEventListener('resize', () => {
 // Скрытие контроллера в полноэкранном режиме
 document.addEventListener('fullscreenchange', updateControlsVisibility);
 document.addEventListener('webkitfullscreenchange', updateControlsVisibility);
-document.addEventListener('mozfullscreenchange', updateControlsVisibility);
-document.addEventListener('MSFullscreenChange', updateControlsVisibility);
 
 function updateControlsVisibility() {
     const controls = document.querySelector('.controls');
-    if (document.fullscreenElement || 
-        document.webkitFullscreenElement || 
-        document.mozFullScreenElement ||
-        document.msFullscreenElement) {
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
         controls.style.opacity = '0';
         controls.style.pointerEvents = 'none';
     } else {
