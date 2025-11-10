@@ -246,15 +246,15 @@ html, body {
 #sensitivitySlider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 42px;
-    height: 42px;
+    width: 28px;  /* Уменьшено с 42px */
+    height: 28px; /* Уменьшено с 42px */
     border-radius: 50%;
     background: #ff6b6b;
     cursor: pointer;
-    box-shadow: 0 0 25px rgba(255,107,107,0.7),
-                0 4px 12px rgba(0,0,0,0.3),
+    box-shadow: 0 0 20px rgba(255,107,107,0.7),  /* Уменьшена тень */
+                0 4px 10px rgba(0,0,0,0.3),     /* Уменьшена тень */
                 0 0 0 2px rgba(255,255,255,0.8);
-    border: 3px solid white;
+    border: 2px solid white; /* Уменьшено с 3px */
     transition: all 0.2s ease;
     position: relative;
     top: 50%;
@@ -263,10 +263,10 @@ html, body {
 }
 
 #sensitivitySlider::-webkit-slider-thumb:hover {
-    transform: translateY(-50%) scale(1.18);
-    box-shadow: 0 0 30px rgba(255,107,107,0.9),
-                0 6px 15px rgba(0,0,0,0.4),
-                0 0 0 3px rgba(255,255,255,0.9);
+    transform: translateY(-50%) scale(1.15); /* Уменьшено с 1.18 */
+    box-shadow: 0 0 25px rgba(255,107,107,0.9),  /* Уменьшена тень */
+                0 5px 12px rgba(0,0,0,0.4),     /* Уменьшена тень */
+                0 0 0 2px rgba(255,255,255,0.9); /* Уменьшена обводка */
     background: #ff5252;
 }
 
@@ -294,24 +294,24 @@ html, body {
 
 /* Firefox */
 #sensitivitySlider::-moz-range-thumb {
-    width: 42px;
-    height: 42px;
+    width: 28px;  /* Уменьшено с 42px */
+    height: 28px; /* Уменьшено с 42px */
     border-radius: 50%;
     background: #ff6b6b;
     cursor: pointer;
-    box-shadow: 0 0 25px rgba(255,107,107,0.7),
-                0 4px 12px rgba(0,0,0,0.3),
+    box-shadow: 0 0 20px rgba(255,107,107,0.7),  /* Уменьшена тень */
+                0 4px 10px rgba(0,0,0,0.3),     /* Уменьшена тень */
                 0 0 0 2px rgba(255,255,255,0.8);
-    border: 3px solid white;
+    border: 2px solid white; /* Уменьшено с 3px */
     transition: all 0.2s ease;
     position: relative;
 }
 
 #sensitivitySlider::-moz-range-thumb:hover {
-    transform: scale(1.18);
-    box-shadow: 0 0 30px rgba(255,107,107,0.9),
-                0 6px 15px rgba(0,0,0,0.4),
-                0 0 0 3px rgba(255,255,255,0.9);
+    transform: scale(1.15); /* Уменьшено с 1.18 */
+    box-shadow: 0 0 25px rgba(255,107,107,0.9),  /* Уменьшена тень */
+                0 5px 12px rgba(0,0,0,0.4),     /* Уменьшена тень */
+                0 0 0 2px rgba(255,255,255,0.9); /* Уменьшена обводка */
     background: #ff5252;
 }
 
@@ -574,13 +574,13 @@ body:-ms-fullscreen .controls {
     }
     
     #sensitivitySlider::-webkit-slider-thumb {
-        width: 36px;
-        height: 36px;
+        width: 24px;  /* Уменьшено с 36px */
+        height: 24px; /* Уменьшено с 36px */
     }
     
     #sensitivitySlider::-moz-range-thumb {
-        width: 36px;
-        height: 36px;
+        width: 24px;  /* Уменьшено с 36px */
+        height: 24px; /* Уменьшено с 36px */
     }
     
     .qr-content {
@@ -657,15 +657,15 @@ body:-ms-fullscreen .controls {
     }
     
     #sensitivitySlider::-webkit-slider-thumb {
-        width: 32px;
-        height: 32px;
-        border-width: 2px;
+        width: 20px;  /* Уменьшено с 32px */
+        height: 20px; /* Уменьшено с 32px */
+        border-width: 1px; /* Уменьшено с 2px */
     }
     
     #sensitivitySlider::-moz-range-thumb {
-        width: 32px;
-        height: 32px;
-        border-width: 2px;
+        width: 20px;  /* Уменьшено с 32px */
+        height: 20px; /* Уменьшено с 32px */
+        border-width: 1px; /* Уменьшено с 2px */
     }
     
     .qr-content {
@@ -720,6 +720,16 @@ body:-ms-fullscreen .controls {
     
     .sensitivity-label {
         font-size: 12px;
+    }
+
+    #sensitivitySlider::-webkit-slider-thumb {
+        width: 18px;  /* Уменьшено с 32px */
+        height: 18px; /* Уменьшено с 32px */
+    }
+    
+    #sensitivitySlider::-moz-range-thumb {
+        width: 18px;  /* Уменьшено с 32px */
+        height: 18px; /* Уменьшено с 32px */
     }
 }
 
