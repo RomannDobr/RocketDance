@@ -24,34 +24,37 @@
     <meta name="msapplication-TileColor" content="#000000">
     <meta name="msapplication-config" content="none">
 
+    <!-- Мета-теги для кеширования -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
     <!-- Web App Manifest -->
     <link rel="manifest" href="data:application/manifest+json,{
-      \" name\": \"RocketDance\", \"short_name\": \"RocketDance\", \"description\": \"Цветомузыкальное шоу\",
-        \"start_url\": \"./\", \"display\": \"fullscreen\", \"background_color\": \"#000000\", \"theme_color\":
-        \"#000000\", \"orientation\": \"landscape\", \"icons\": [ { \"src\": \"data:image/svg+xml,<svg
-        xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
-    <defs>
-        <radialGradient id='g' cx='50%' cy='50%' r='50%'>
-            <stop offset='0%' stop-color='%239D4EDD' />
-            <stop offset='100%' stop-color='%234361EE' />
-        </radialGradient>
-    </defs>
-    <rect width='100' height='100' fill='%23000' />
-    <circle cx='50' cy='50' r='48' fill='url(%23g)' opacity='0.95' /><text x='50' y='72' font-family='Arial'
-        font-size='55' font-weight='bold' text-anchor='middle' fill='white'>RD</text></svg>\",
-    \"sizes\": \"any\",
-    \"type\": \"image/svg+xml\",
-    \"purpose\": \"any maskable\"
-    }
-    ]
+      \"name\": \"RocketDance\",
+      \"short_name\": \"RocketDance\", 
+      \"description\": \"Цветомузыкальное шоу\",
+      \"start_url\": \"./\",
+      \"display\": \"fullscreen\", 
+      \"background_color\": \"#000000\",
+      \"theme_color\": \"#000000\",
+      \"orientation\": \"landscape\",
+      \"icons\": [
+        {
+          \"src\": \"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><radialGradient id='g' cx='50%' cy='50%' r='50%'><stop offset='0%' stop-color='%239D4EDD'/><stop offset='100%' stop-color='%234361EE'/></radialGradient></defs><rect width='100' height='100' fill='%23000'/><circle cx='50' cy='50' r='48' fill='url(%23g)' opacity='0.95'/><text x='50' y='72' font-family='Arial' font-size='55' font-weight='bold' text-anchor='middle' fill='white'>RD</text></svg>\",
+          \"sizes\": \"100x100\",
+          \"type\": \"image/svg+xml\",
+          \"purpose\": \"any maskable\"
+        }
+      ]
     }">
 </head>
 
 <body>
     <canvas id="visualizer"></canvas>
 
-    <!-- <div id="centerText">RocketDance</div> -->
-    <div id="centerText">🚀 ЮРА, ПРОСТИ! 🚀</div>
+    <div id="centerText">RocketDance</div>
+    <!-- <div id="centerText">🚀 ЮРА, ПРОСТИ! 🚀</div> -->
 
     <div class="controls">
         <div class="controls-container">
@@ -69,7 +72,7 @@
                     <div class="sensitivity-label">Чувствительность</div>
                 </div>
                 <div class="sensitivity-slider-container">
-                    <input type="range" id="sensitivitySlider" min="0.5" max="3.0" step="0.1" value="1.5">
+                    <input type="range" id="sensitivitySlider" min="0.1" max="5.0" step="0.1" value="1.5">
                 </div>
             </div>
 
@@ -96,8 +99,9 @@
 
     <div id="notification" class="notification"></div>
 
-    <!-- Добавляем библиотеку для генерации QR-кода -->
+    <!-- Подключаем библиотеки -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <script src="https://unpkg.com/nosleep.js@0.12.0/dist/NoSleep.min.js"></script>
     <script src="script.js"></script>
 </body>
 

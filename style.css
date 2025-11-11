@@ -33,7 +33,8 @@ html, body {
     opacity: 0.8;
     pointer-events: none;
     user-select: none;
-    text-shadow: 0 0 30px rgba(255,255,255,0.6);
+    text-shadow: 0 0 30px rgba(255,255,255,0.6),
+                 0 0 60px rgba(100, 200, 255, 0.3);
     transition: opacity 1s ease;
 }
 
@@ -56,6 +57,18 @@ html, body {
     justify-content: center;
     gap: 20px;
     width: 100%;
+    animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Боковые кнопки */
@@ -74,7 +87,8 @@ html, body {
     transition: all 0.3s ease;
     backdrop-filter: blur(15px);
     flex-shrink: 0;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3),
+                0 0 15px rgba(100, 200, 255, 0.1);
     position: relative;
     overflow: hidden;
 }
@@ -104,7 +118,8 @@ html, body {
     transform: scale(1.12);
     border-color: rgba(255,255,255,0.35);
     box-shadow: 0 12px 30px rgba(0,0,0,0.4),
-                0 0 0 1px rgba(255,255,255,0.1);
+                0 0 0 1px rgba(255,255,255,0.1),
+                0 0 25px rgba(100, 200, 255, 0.2);
 }
 
 .side-button:active {
@@ -113,6 +128,10 @@ html, body {
 }
 
 /* Стили для SVG иконок */
+.button-icon {
+    transition: transform 0.2s ease;
+}
+
 .button-icon svg {
     filter: drop-shadow(0 0 10px rgba(255,255,255,0.8));
     transition: all 0.3s ease;
@@ -120,6 +139,10 @@ html, body {
     height: 38px;
     color: rgba(255, 255, 255, 0.95);
     transform: translateY(3px);
+}
+
+.side-button:hover .button-icon {
+    transform: scale(1.1);
 }
 
 .side-button:hover .button-icon svg {
@@ -140,18 +163,12 @@ html, body {
 /* Подсветка для кнопки закладки */
 #bookmarkButton .button-icon svg {
     filter: drop-shadow(0 0 12px rgba(255, 200, 100, 0.6));
+    transform: translateY(3px) scale(1.05);
 }
 
 #bookmarkButton:hover .button-icon svg {
     filter: drop-shadow(0 0 20px rgba(255, 200, 100, 0.9));
-}
-
-.button-icon {
-    transition: transform 0.2s ease;
-}
-
-.side-button:hover .button-icon {
-    transform: scale(1.1);
+    transform: translateY(3px) scale(1.15);
 }
 
 /* Окно чувствительности */
@@ -246,15 +263,15 @@ html, body {
 #sensitivitySlider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 28px;  /* Уменьшено с 42px */
-    height: 28px; /* Уменьшено с 42px */
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     background: #ff6b6b;
     cursor: pointer;
-    box-shadow: 0 0 20px rgba(255,107,107,0.7),  /* Уменьшена тень */
-                0 4px 10px rgba(0,0,0,0.3),     /* Уменьшена тень */
+    box-shadow: 0 0 20px rgba(255,107,107,0.7),
+                0 4px 10px rgba(0,0,0,0.3),
                 0 0 0 2px rgba(255,255,255,0.8);
-    border: 2px solid white; /* Уменьшено с 3px */
+    border: 2px solid white;
     transition: all 0.2s ease;
     position: relative;
     top: 50%;
@@ -263,10 +280,10 @@ html, body {
 }
 
 #sensitivitySlider::-webkit-slider-thumb:hover {
-    transform: translateY(-50%) scale(1.15); /* Уменьшено с 1.18 */
-    box-shadow: 0 0 25px rgba(255,107,107,0.9),  /* Уменьшена тень */
-                0 5px 12px rgba(0,0,0,0.4),     /* Уменьшена тень */
-                0 0 0 2px rgba(255,255,255,0.9); /* Уменьшена обводка */
+    transform: translateY(-50%) scale(1.15);
+    box-shadow: 0 0 25px rgba(255,107,107,0.9),
+                0 5px 12px rgba(0,0,0,0.4),
+                0 0 0 2px rgba(255,255,255,0.9);
     background: #ff5252;
 }
 
@@ -294,24 +311,24 @@ html, body {
 
 /* Firefox */
 #sensitivitySlider::-moz-range-thumb {
-    width: 28px;  /* Уменьшено с 42px */
-    height: 28px; /* Уменьшено с 42px */
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     background: #ff6b6b;
     cursor: pointer;
-    box-shadow: 0 0 20px rgba(255,107,107,0.7),  /* Уменьшена тень */
-                0 4px 10px rgba(0,0,0,0.3),     /* Уменьшена тень */
+    box-shadow: 0 0 20px rgba(255,107,107,0.7),
+                0 4px 10px rgba(0,0,0,0.3),
                 0 0 0 2px rgba(255,255,255,0.8);
-    border: 2px solid white; /* Уменьшено с 3px */
+    border: 2px solid white;
     transition: all 0.2s ease;
     position: relative;
 }
 
 #sensitivitySlider::-moz-range-thumb:hover {
-    transform: scale(1.15); /* Уменьшено с 1.18 */
-    box-shadow: 0 0 25px rgba(255,107,107,0.9),  /* Уменьшена тень */
-                0 5px 12px rgba(0,0,0,0.4),     /* Уменьшена тень */
-                0 0 0 2px rgba(255,255,255,0.9); /* Уменьшена обводка */
+    transform: scale(1.15);
+    box-shadow: 0 0 25px rgba(255,107,107,0.9),
+                0 5px 12px rgba(0,0,0,0.4),
+                0 0 0 2px rgba(255,255,255,0.9);
     background: #ff5252;
 }
 
@@ -335,8 +352,22 @@ body:fullscreen .controls,
 body:-webkit-full-screen .controls,
 body:-moz-full-screen .controls,
 body:-ms-fullscreen .controls {
-    opacity: 0;
-    pointer-events: none;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.3s ease !important;
+}
+
+/* Поддержка полноэкранного режима для разных браузеров */
+body:-webkit-full-screen {
+    background: black;
+}
+
+body:-moz-full-screen {
+    background: black;
+}
+
+body:-ms-fullscreen {
+    background: black;
 }
 
 /* QR-код модальное окно */
@@ -558,6 +589,14 @@ body:-ms-fullscreen .controls {
         transform: translateY(2px) scale(1.1);
     }
     
+    #bookmarkButton .button-icon svg {
+        transform: translateY(2px) scale(1.05);
+    }
+    
+    #bookmarkButton:hover .button-icon svg {
+        transform: translateY(2px) scale(1.15);
+    }
+    
     .sensitivity-control {
         height: 70px;
         padding: 8px 20px;
@@ -574,13 +613,13 @@ body:-ms-fullscreen .controls {
     }
     
     #sensitivitySlider::-webkit-slider-thumb {
-        width: 24px;  /* Уменьшено с 36px */
-        height: 24px; /* Уменьшено с 36px */
+        width: 24px;
+        height: 24px;
     }
     
     #sensitivitySlider::-moz-range-thumb {
-        width: 24px;  /* Уменьшено с 36px */
-        height: 24px; /* Уменьшено с 36px */
+        width: 24px;
+        height: 24px;
     }
     
     .qr-content {
@@ -642,6 +681,14 @@ body:-ms-fullscreen .controls {
         transform: translateY(1px) scale(1.1);
     }
     
+    #bookmarkButton .button-icon svg {
+        transform: translateY(1px) scale(1.05);
+    }
+    
+    #bookmarkButton:hover .button-icon svg {
+        transform: translateY(1px) scale(1.15);
+    }
+    
     .sensitivity-control {
         padding: 6px 15px;
         border-radius: 16px;
@@ -657,15 +704,15 @@ body:-ms-fullscreen .controls {
     }
     
     #sensitivitySlider::-webkit-slider-thumb {
-        width: 20px;  /* Уменьшено с 32px */
-        height: 20px; /* Уменьшено с 32px */
-        border-width: 1px; /* Уменьшено с 2px */
+        width: 20px;
+        height: 20px;
+        border-width: 1px;
     }
     
     #sensitivitySlider::-moz-range-thumb {
-        width: 20px;  /* Уменьшено с 32px */
-        height: 20px; /* Уменьшено с 32px */
-        border-width: 1px; /* Уменьшено с 2px */
+        width: 20px;
+        height: 20px;
+        border-width: 1px;
     }
     
     .qr-content {
@@ -693,7 +740,6 @@ body:-ms-fullscreen .controls {
     }
 }
 
-/* Очень маленькие экраны */
 @media (max-width: 360px) {
     .controls-container {
         gap: 8px;
@@ -714,6 +760,14 @@ body:-ms-fullscreen .controls {
         transform: translateY(1px) scale(1.1);
     }
     
+    #bookmarkButton .button-icon svg {
+        transform: translateY(1px) scale(1.05);
+    }
+    
+    #bookmarkButton:hover .button-icon svg {
+        transform: translateY(1px) scale(1.15);
+    }
+    
     .sensitivity-control {
         padding: 5px 12px;
     }
@@ -723,29 +777,13 @@ body:-ms-fullscreen .controls {
     }
 
     #sensitivitySlider::-webkit-slider-thumb {
-        width: 18px;  /* Уменьшено с 32px */
-        height: 18px; /* Уменьшено с 32px */
+        width: 18px;
+        height: 18px;
     }
     
     #sensitivitySlider::-moz-range-thumb {
-        width: 18px;  /* Уменьшено с 32px */
-        height: 18px; /* Уменьшено с 32px */
-    }
-}
-
-/* Анимации для плавного появления */
-.controls-container {
-    animation: slideUp 0.5s ease;
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+        width: 18px;
+        height: 18px;
     }
 }
 
@@ -759,68 +797,3 @@ body:-ms-fullscreen .controls {
             rgba(35,35,55,0.9) 100%);
     }
 }
-
-/* Дополнительные эффекты подсветки */
-.side-button {
-    background: linear-gradient(135deg, 
-        rgba(0,0,0,0.85) 0%, 
-        rgba(25,25,45,0.85) 100%);
-    border: 1px solid rgba(255,255,255,0.2);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3),
-                0 0 15px rgba(100, 200, 255, 0.1);
-}
-
-.side-button:hover {
-    box-shadow: 0 12px 30px rgba(0,0,0,0.4),
-                0 0 0 1px rgba(255,255,255,0.1),
-                0 0 25px rgba(100, 200, 255, 0.2);
-}
-
-/* Усиленная подсветка для центрального текста */
-#centerText {
-    text-shadow: 0 0 30px rgba(255,255,255,0.6),
-                 0 0 60px rgba(100, 200, 255, 0.3);
-}
-
-/* Подсветка для кнопки поделиться */
-#bookmarkButton .button-icon svg {
-    filter: drop-shadow(0 0 12px rgba(255, 200, 100, 0.6));
-    transform: translateY(3px) scale(1.05); /* Немного увеличиваем иконку share */
-}
-
-#bookmarkButton:hover .button-icon svg {
-    filter: drop-shadow(0 0 20px rgba(255, 200, 100, 0.9));
-    transform: translateY(3px) scale(1.15);
-}
-
-/* Адаптивность для иконки поделиться */
-@media (max-width: 768px) {
-    #bookmarkButton .button-icon svg {
-        transform: translateY(2px) scale(1.05);
-    }
-    
-    #bookmarkButton:hover .button-icon svg {
-        transform: translateY(2px) scale(1.15);
-    }
-}
-
-@media (max-width: 480px) {
-    #bookmarkButton .button-icon svg {
-        transform: translateY(1px) scale(1.05);
-    }
-    
-    #bookmarkButton:hover .button-icon svg {
-        transform: translateY(1px) scale(1.15);
-    }
-}
-
-@media (max-width: 360px) {
-    #bookmarkButton .button-icon svg {
-        transform: translateY(1px) scale(1.05);
-    }
-    
-    #bookmarkButton:hover .button-icon svg {
-        transform: translateY(1px) scale(1.15);
-    }
-}
-
