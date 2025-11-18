@@ -783,8 +783,10 @@ window.addEventListener('resize', () => {
 function updateControlsVisibility() {
     if (isFullscreen()) {
         hideControls();
+        hideTopButton(); // Добавляем эту строку
     } else {
         showControls();
+        showTopButton(); // Добавляем эту строку
         // Запускаем таймер автоскрытия только если не в полноэкранном режиме
         hideControlsAfterTimeout();
     }
@@ -798,3 +800,49 @@ document.addEventListener('MSFullscreenChange', updateControlsVisibility);
 
 // Инициализация видимости контролов при загрузке
 updateControlsVisibility();
+
+function setupAutoHideControls() {
+    // Показываем контролы при любом взаимодействии
+    document.addEventListener('mousemove', showControlsTemporarily);
+    document.addEventListener('touchstart', showControlsTemporarily);
+    document.addEventListener('click', showControlsTemporarily);
+
+    // Скрываем через 3 секунды бездействия
+    hideControlsAfterTimeout();
+}
+
+function showControlsTemporarily() {
+    // Не показываем контролы в полноэкранном режиме
+    if (isFullscreen()) return;
+    
+    showControls();
+    showTopButton(); // Добавляем эту строку
+    clearTimeout(controlsTimeout);
+    hideControlsAfterTimeout();
+}
+
+// Добавляем функции для управления верхней кнопкой
+function showTopButton() {
+    const topButton = document.getElementById('yuraButton');
+    if (topButton) {
+        topButton.style.opacity = '1';
+        topButton.style.pointerEvents = 'auto';
+    }
+}
+
+function hideTopButton() {
+    const topButton = document.getElementById('yuraButton');
+    if (topButton) {
+        topButton.style.opacity = '0';
+        topButton.style.pointerEvents = 'none';
+    }
+}
+
+function hideControlsAfterTimeout() {
+    controlsTimeout = setTimeout(() => {
+        if (!isFullscreen()) {
+            hideControls();
+            hideTopButton(); // Добавляем эту строку
+        }
+    }, 3000);
+}
