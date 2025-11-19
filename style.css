@@ -807,9 +807,9 @@ body:-ms-fullscreen {
     background: linear-gradient(135deg, 
         rgba(104, 104, 104, 0.95) 0%, 
         rgba(240,240,250,0.95) 100%);
-    border: 1px solid rgba(255,255,255,0.3);
+    border: 0px solid rgba(122, 122, 122, 0.3);
     border-radius: 16px;
-    width: 480px; /* Шире - сумма трех кнопок (80x3) + отступы (20x2) = 280px, увеличиваем до 480px */
+    width: 680px;
     height: 80px;
     display: flex;
     align-items: center;
@@ -819,7 +819,7 @@ body:-ms-fullscreen {
     backdrop-filter: blur(15px);
     text-decoration: none;
     box-shadow: 0 8px 25px rgba(0,0,0,0.2),
-                0 0 15px rgba(100, 180, 255, 0.3);
+                0 0 15px rgba(43, 71, 97, 0.3);
     z-index: 2;
     overflow: hidden;
 }
@@ -833,7 +833,7 @@ body:-ms-fullscreen {
     height: 100%;
     background: linear-gradient(90deg, 
         transparent, 
-        rgba(255,255,255,0.3), 
+        rgba(255, 255, 255, 0.3), 
         transparent);
     transition: left 0.6s ease;
 }
@@ -847,10 +847,10 @@ body:-ms-fullscreen {
         rgb(150, 150, 150) 0%, 
         rgba(245,245,255,1) 100%);
     transform: translateX(-50%) scale(1.05);
-    border-color: rgba(100, 167, 255, 0.5);
+    border-color: rgba(83, 108, 141, 0.5);
     box-shadow: 0 12px 30px rgba(0,0,0,0.3),
                 0 0 0 1px rgba(100, 167, 255, 0.2),
-                0 0 25px rgba(100, 180, 255, 0.4);
+                0 0 2px rgba(66, 102, 136, 0.4);
 }
 
 .top-button:active {
@@ -859,18 +859,18 @@ body:-ms-fullscreen {
 }
 
 .button-text {
-    color: #084fb8; /* Темно-красный цвет текста */
-    font-size: 24px; /* Увеличили шрифт */
+    color: #404752; /* Темно-красный цвет текста */
+    font-size: 30px; /* Увеличили шрифт */
     font-weight: 800; /* Более жирный */
     letter-spacing: 1.5px;
-    text-shadow: 0 0 8px rgba(100, 185, 255, 0.6);
+    text-shadow: 0 0 8px rgba(118, 129, 138, 0.6);
     transition: all 0.3s ease;
 }
 
 .top-button:hover .button-text {
-    color: #084fb8; /* Еще более темный красный при наведении */
-    text-shadow: 0 0 12px rgba(100, 149, 255, 0.9),
-                 0 0 20px rgba(100, 141, 255, 0.5);
+    color: #424c5c; /* Еще более темный красный при наведении */
+    text-shadow: 0 0 1px rgba(90, 97, 114, 0.9),
+                 0 0 2px rgba(141, 147, 165, 0.5);
     transform: scale(1.08);
 }
 
