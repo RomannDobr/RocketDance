@@ -7,56 +7,42 @@
     <title>RocketDance</title>
     <link rel="stylesheet" href="style.css">
 
-    <!-- Favicon для всех устройств -->
-    <link rel="apple-touch-icon" sizes="180x180"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><radialGradient id='g' cx='50%' cy='50%' r='50%'><stop offset='0%' stop-color='%239D4EDD'/><stop offset='100%' stop-color='%234361EE'/></radialGradient></defs><rect width='100' height='100' fill='%23000'/><circle cx='50' cy='50' r='48' fill='url(%23g)' opacity='0.95'/><text x='50' y='72' font-family='Arial' font-size='55' font-weight='bold' text-anchor='middle' fill='white'>RD</text></svg>">
-    <link rel="icon" type="image/svg+xml"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><radialGradient id='g' cx='50%' cy='50%' r='50%'><stop offset='0%' stop-color='%239D4EDD'/><stop offset='100%' stop-color='%234361EE'/></radialGradient></defs><rect width='100' height='100' fill='%23000'/><circle cx='50' cy='50' r='48' fill='url(%23g)' opacity='0.95'/><text x='50' y='72' font-family='Arial' font-size='55' font-weight='bold' text-anchor='middle' fill='white'>RD</text></svg>">
-    <link rel="shortcut icon" type="image/svg+xml"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><radialGradient id='g' cx='50%' cy='50%' r='50%'><stop offset='0%' stop-color='%239D4EDD'/><stop offset='100%' stop-color='%234361EE'/></radialGradient></defs><rect width='100' height='100' fill='%23000'/><circle cx='50' cy='50' r='48' fill='url(%23g)' opacity='0.95'/><text x='50' y='72' font-family='Arial' font-size='55' font-weight='bold' text-anchor='middle' fill='white'>RD</text></svg>">
+    <!-- 🔥 FAVICONS — полный рабочий набор для iPhone/Android/PC -->
+    <!-- Apple iPhone -->
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon_180.png">
 
-    <!-- Мета-теги для iOS -->
+    <!-- Standard PNG favicons -->
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon_16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon_32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon_48.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="favicon_64.png">
+    <link rel="icon" type="image/png" sizes="128x128" href="favicon_128.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon_192.png">
+    <link rel="icon" type="image/png" sizes="256x256" href="favicon_256.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="favicon_512.png">
+    <link rel="icon" type="image/png" sizes="1024x1024" href="favicon_1024.png">
+
+    <!-- Optional SVG favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- iOS WebApp settings -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="RocketDance">
+
+    <!-- Colors -->
     <meta name="application-name" content="RocketDance">
     <meta name="theme-color" content="#000000">
     <meta name="msapplication-TileColor" content="#000000">
-    <meta name="msapplication-config" content="none">
-
-    <!-- Мета-теги для кеширования -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-
-    <!-- Web App Manifest -->
-    <link rel="manifest" href="data:application/manifest+json,{
-      \" name\": \"RocketDance\", \"short_name\": \"RocketDance\", \"description\": \"Цветомузыкальное шоу\",
-        \"start_url\": \"./\", \"display\": \"fullscreen\", \"background_color\": \"#000000\", \"theme_color\":
-        \"#000000\", \"orientation\": \"landscape\", \"icons\": [ { \"src\": \"data:image/svg+xml,<svg
-        xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
-    <defs>
-        <radialGradient id='g' cx='50%' cy='50%' r='50%'>
-            <stop offset='0%' stop-color='%239D4EDD' />
-            <stop offset='100%' stop-color='%234361EE' />
-        </radialGradient>
-    </defs>
-    <rect width='100' height='100' fill='%23000' />
-    <circle cx='50' cy='50' r='48' fill='url(%23g)' opacity='0.95' /><text x='50' y='72' font-family='Arial'
-        font-size='55' font-weight='bold' text-anchor='middle' fill='white'>RD</text></svg>\",
-    \"sizes\": \"100x100\",
-    \"type\": \"image/svg+xml\",
-    \"purpose\": \"any maskable\"
-    }
-    ]
-    }">
 </head>
 
 <body>
     <canvas id="visualizer"></canvas>
 
     <div id="centerText">RocketDance</div>
-    <!-- <div id="centerText">🚀 ЮРА, ПРОСТИ! 🚀</div> -->
 
     <div class="controls">
         <div class="controls-container">
@@ -89,7 +75,7 @@
         </div>
     </div>
 
-    <!-- Модальное окно QR-кода -->
+    <!-- QR modal -->
     <div class="qr-modal" id="qrModal">
         <div class="qr-content">
             <h3 style="color: white; margin-bottom: 15px;">Поделиться RocketDance</h3>
@@ -101,18 +87,10 @@
 
     <div id="notification" class="notification"></div>
 
-    <!-- Подключаем библиотеки -->
+    <!-- libs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
     <script src="https://unpkg.com/nosleep.js@0.12.0/dist/NoSleep.min.js"></script>
     <script src="script.js"></script>
-
-    <!-- Закомментировать в случае ненадобности -->
-    <!-- Верхняя кнопка "Юра, прости!" -->
-    <!-- <a href="https://vk.com/yuraprostiband" class="top-button" id="yuraButton" target="_blank">
-        <span class="button-text">Юра, прости!</span>
-    </a> -->
-    <!-- Закомментировать в случае ненадобности -->
-
 </body>
 
 </html>
