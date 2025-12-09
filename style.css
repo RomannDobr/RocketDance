@@ -1135,3 +1135,241 @@ body:-ms-fullscreen .top-button {
         font-size: 15px;
     }
 }
+
+/* iOS PWA инструкция */
+.pwa-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(10px);
+    animation: fadeIn 0.3s ease;
+}
+
+.pwa-content {
+    background: linear-gradient(135deg, 
+        rgba(20, 20, 40, 0.95) 0%, 
+        rgba(40, 40, 60, 0.95) 100%);
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    max-width: 400px;
+    margin: 20px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.4s ease;
+}
+
+.pwa-icon {
+    font-size: 50px;
+    margin-bottom: 15px;
+    color: #ff6b6b;
+}
+
+.pwa-content h3 {
+    color: white;
+    font-size: 22px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.pwa-content p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 16px;
+    margin-bottom: 25px;
+}
+
+.pwa-steps {
+    text-align: left;
+    margin: 25px 0;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.step {
+    color: white;
+    margin-bottom: 15px;
+    font-size: 15px;
+    display: flex;
+    align-items: flex-start;
+    line-height: 1.5;
+}
+
+.step:last-child {
+    margin-bottom: 0;
+}
+
+.step-number {
+    background: #ff6b6b;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    flex-shrink: 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.pwa-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.pwa-button {
+    flex: 1;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.pwa-button.primary {
+    background: linear-gradient(135deg, #ff6b6b, #ff5252);
+    color: white;
+}
+
+.pwa-button.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+}
+
+.pwa-button.secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.pwa-button.secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Подсказка для первого клика */
+#first-click-hint {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+    pointer-events: none;
+}
+
+.click-hint {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 107, 107, 0.8);
+    animation: pulse 2s infinite;
+    margin-bottom: 20px;
+}
+
+.click-text {
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px 20px;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    animation: fadeInOut 3s infinite;
+}
+
+/* Индикатор автоматического запуска */
+.auto-start-indicator {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(76, 175, 80, 0.9);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 9997;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 5px 20px rgba(76, 175, 80, 0.3);
+    animation: slideDown 0.5s ease;
+    display: none;
+}
+
+/* Анимации */
+@keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 0.4; }
+    100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+@keyframes fadeInOut {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+@keyframes slideDown {
+    from { transform: translateX(-50%) translateY(-30px); opacity: 0; }
+    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-20px); }
+}
+
+/* Скрытие элементов для разных устройств */
+body.no-click-hint #first-click-hint {
+    display: none !important;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+    .pwa-content {
+        padding: 25px 20px;
+        margin: 15px;
+    }
+    
+    .pwa-content h3 {
+        font-size: 20px;
+    }
+    
+    .step {
+        font-size: 14px;
+    }
+    
+    .pwa-button {
+        padding: 12px 15px;
+        font-size: 15px;
+    }
+    
+    .auto-start-indicator {
+        font-size: 13px;
+        padding: 8px 16px;
+        top: 15px;
+    }
+}
