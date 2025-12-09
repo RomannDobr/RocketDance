@@ -23,35 +23,59 @@ let beatIntensity = 0;
 // Синхронизация времени между устройствами
 let timeOffset = 0;
 
+// Wake Lock переменные
+let wakeLock = null;
 let noSleep = null;
 let controlsTimeout;
+let isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
 // === Инициализация ===
 document.addEventListener('DOMContentLoaded', async () => {
     await initializeShow();
 });
 
-// Инициализация No Sleep
+// Инициализация Wake Lock
 function initializeNoSleep() {
-    if ('wakeLock' in navigator) {
-        // Используем современный Wake Lock API
-        try {
-            navigator.wakeLock.request('screen').then(wakeLock => {
-                console.log('Screen wake lock acquired');
-            }).catch(err => {
-                console.log('Wake Lock API not supported:', err);
-                initializeLegacyNoSleep();
-            });
-        } catch (err) {
-            console.log('Wake Lock API error:', err);
-            initializeLegacyNoSleep();
-        }
+    if ('wakeLock' in navigator && navigator.wakeLock) {
+        // Современный Wake Lock API
+        requestWakeLock();
     } else {
-        // Используем legacy No Sleep.js
+        // Legacy для старых браузеров
+        initializeLegacyNoSleep();
+    }
+    
+    // Для iOS - дополнительные меры
+    if (isIOS) {
+        setupIOSWorkarounds();
+    }
+}
+
+// Wake Lock API
+async function requestWakeLock() {
+    try {
+        wakeLock = await navigator.wakeLock.request('screen');
+        console.log('Screen wake lock acquired');
+        
+        // Обработка освобождения wake lock
+        wakeLock.addEventListener('release', () => {
+            console.log('Screen wake lock released');
+            // Пытаемся восстановить при следующем взаимодействии
+            document.addEventListener('click', reacquireWakeLock, { once: true });
+        });
+    } catch (err) {
+        console.warn(`Wake Lock API error: ${err.name}, ${err.message}`);
         initializeLegacyNoSleep();
     }
 }
 
+async function reacquireWakeLock() {
+    if (wakeLock !== null) {
+        wakeLock = await navigator.wakeLock.request('screen');
+        console.log('Wake lock reacquired');
+    }
+}
+
+// Legacy NoSleep для старых браузеров
 function initializeLegacyNoSleep() {
     try {
         if (typeof NoSleep !== 'undefined') {
@@ -69,6 +93,25 @@ function enableNoSleep() {
         noSleep.enable();
         console.log('NoSleep activated');
     }
+}
+
+// Специальные обходные пути для iOS
+function setupIOSWorkarounds() {
+    console.log('Setting up iOS workarounds');
+    
+    // Периодическое обновление заголовка (обход для iOS)
+    let titleCounter = 0;
+    const originalTitle = document.title;
+    
+    setInterval(() => {
+        titleCounter++;
+        if (titleCounter % 10 === 0) {
+            document.title = originalTitle + ' ';
+            setTimeout(() => {
+                document.title = originalTitle;
+            }, 100);
+        }
+    }, 10000);
 }
 
 // Функция скрытия контролов
@@ -185,6 +228,16 @@ function setupEventListeners() {
     });
 
     canvas.addEventListener('click', toggleFullscreen);
+    
+    // Для iOS - дополнительные обработчики
+    if (isIOS) {
+        document.addEventListener('click', () => {
+            // Перезапускаем Wake Lock при клике
+            if (wakeLock === null && 'wakeLock' in navigator) {
+                requestWakeLock();
+            }
+        });
+    }
 }
 
 // === Полный экран по клику ===
@@ -783,14 +836,22 @@ window.addEventListener('resize', () => {
 function updateControlsVisibility() {
     if (isFullscreen()) {
         hideControls();
-        hideTopButton(); // Добавляем эту строку
     } else {
         showControls();
-        showTopButton(); // Добавляем эту строку
         // Запускаем таймер автоскрытия только если не в полноэкранном режиме
         hideControlsAfterTimeout();
     }
 }
+
+// Обработчик изменения видимости страницы для Wake Lock
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        // Страница снова стала видимой - восстанавливаем wake lock
+        if (wakeLock !== null) {
+            requestWakeLock();
+        }
+    }
+});
 
 // Обработчики изменения полноэкранного режима
 document.addEventListener('fullscreenchange', updateControlsVisibility);
@@ -800,49 +861,3 @@ document.addEventListener('MSFullscreenChange', updateControlsVisibility);
 
 // Инициализация видимости контролов при загрузке
 updateControlsVisibility();
-
-function setupAutoHideControls() {
-    // Показываем контролы при любом взаимодействии
-    document.addEventListener('mousemove', showControlsTemporarily);
-    document.addEventListener('touchstart', showControlsTemporarily);
-    document.addEventListener('click', showControlsTemporarily);
-
-    // Скрываем через 3 секунды бездействия
-    hideControlsAfterTimeout();
-}
-
-function showControlsTemporarily() {
-    // Не показываем контролы в полноэкранном режиме
-    if (isFullscreen()) return;
-    
-    showControls();
-    showTopButton(); // Добавляем эту строку
-    clearTimeout(controlsTimeout);
-    hideControlsAfterTimeout();
-}
-
-// Добавляем функции для управления верхней кнопкой
-function showTopButton() {
-    const topButton = document.getElementById('yuraButton');
-    if (topButton) {
-        topButton.style.opacity = '1';
-        topButton.style.pointerEvents = 'auto';
-    }
-}
-
-function hideTopButton() {
-    const topButton = document.getElementById('yuraButton');
-    if (topButton) {
-        topButton.style.opacity = '0';
-        topButton.style.pointerEvents = 'none';
-    }
-}
-
-function hideControlsAfterTimeout() {
-    controlsTimeout = setTimeout(() => {
-        if (!isFullscreen()) {
-            hideControls();
-            hideTopButton(); // Добавляем эту строку
-        }
-    }, 3000);
-}
