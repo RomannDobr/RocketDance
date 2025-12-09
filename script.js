@@ -25,93 +25,236 @@ let timeOffset = 0;
 
 // Wake Lock переменные
 let wakeLock = null;
-let noSleep = null;
+let audioWakeLock = null;
+let wakeLockWorker = null;
 let controlsTimeout;
-let isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+// Определение устройства
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
+              window.navigator.standalone || 
+              document.referrer.includes('android-app://');
 
 // === Инициализация ===
 document.addEventListener('DOMContentLoaded', async () => {
     await initializeShow();
 });
 
-// Инициализация Wake Lock
-function initializeNoSleep() {
-    if ('wakeLock' in navigator && navigator.wakeLock) {
-        // Современный Wake Lock API
-        requestWakeLock();
-    } else {
-        // Legacy для старых браузеров
-        initializeLegacyNoSleep();
+// === Аудио Wake Lock ===
+class AudioWakeLock {
+    constructor() {
+        this.ctx = null;
+        this.osc = null;
+        this.gain = null;
+        this.active = false;
+        this.timer = null;
     }
     
-    // Для iOS - дополнительные меры
-    if (isIOS) {
-        setupIOSWorkarounds();
+    init() {
+        // Запускаем по первому клику на canvas
+        canvas.addEventListener('click', () => this.start(), { once: true });
     }
-}
-
-// Wake Lock API
-async function requestWakeLock() {
-    try {
-        wakeLock = await navigator.wakeLock.request('screen');
-        console.log('Screen wake lock acquired');
-        
-        // Обработка освобождения wake lock
-        wakeLock.addEventListener('release', () => {
-            console.log('Screen wake lock released');
-            // Пытаемся восстановить при следующем взаимодействии
-            document.addEventListener('click', reacquireWakeLock, { once: true });
-        });
-    } catch (err) {
-        console.warn(`Wake Lock API error: ${err.name}, ${err.message}`);
-        initializeLegacyNoSleep();
-    }
-}
-
-async function reacquireWakeLock() {
-    if (wakeLock !== null) {
-        wakeLock = await navigator.wakeLock.request('screen');
-        console.log('Wake lock reacquired');
-    }
-}
-
-// Legacy NoSleep для старых браузеров
-function initializeLegacyNoSleep() {
-    try {
-        if (typeof NoSleep !== 'undefined') {
-            noSleep = new NoSleep();
-            // Активируем при первом пользовательском взаимодействии
-            document.addEventListener('click', enableNoSleep, { once: true });
+    
+    start() {
+        try {
+            console.log('🎵 Запуск аудио wake lock...');
+            
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            this.osc = this.ctx.createOscillator();
+            this.gain = this.ctx.createGain();
+            
+            // НЕСЛЫШИМЫЕ настройки
+            this.osc.frequency.value = 0.1; // 0.1 Гц - инфразвук
+            this.gain.gain.value = 0.00001; // -100 dB
+            
+            this.osc.type = 'sine';
+            this.osc.connect(this.gain);
+            this.gain.connect(this.ctx.destination);
+            
+            // Запускаем
+            this.osc.start();
+            this.active = true;
+            
+            // Периодическое обновление параметров
+            this.timer = setInterval(() => {
+                if (this.active && this.osc) {
+                    // Микро-изменение частоты
+                    this.osc.frequency.value = 0.1 + Math.random() * 0.05;
+                    
+                    // Каждые 30 секунд - микро-пауза
+                    if (Date.now() % 30000 < 50) {
+                        const original = this.gain.gain.value;
+                        this.gain.gain.value = 0.000005;
+                        setTimeout(() => {
+                            if (this.active) this.gain.gain.value = original;
+                        }, 50);
+                    }
+                }
+            }, 10000); // Каждые 10 секунд
+            
+            console.log('✅ Аудио wake lock запущен');
+            
+        } catch (err) {
+            console.log('❌ Аудио wake lock ошибка:', err);
         }
-    } catch (err) {
-        console.log('NoSleep.js not available:', err);
+    }
+    
+    stop() {
+        if (this.timer) clearInterval(this.timer);
+        if (this.osc) {
+            this.osc.stop();
+            this.osc.disconnect();
+        }
+        if (this.ctx) this.ctx.close();
+        this.active = false;
+        console.log('🛑 Аудио wake lock остановлен');
     }
 }
 
-function enableNoSleep() {
-    if (noSleep) {
-        noSleep.enable();
-        console.log('NoSleep activated');
+// === Web Worker для поддержания активности ===
+function startWakeLockWorker() {
+    if (typeof Worker !== 'undefined') {
+        try {
+            // Создаём inline worker
+            const workerCode = `
+                let activityTimer;
+                self.onmessage = function(e) {
+                    if (e.data === 'start') {
+                        activityTimer = setInterval(() => {
+                            self.postMessage('ping');
+                        }, 15000); // Каждые 15 секунд
+                    } else if (e.data === 'stop') {
+                        if (activityTimer) clearInterval(activityTimer);
+                    }
+                };
+            `;
+            
+            const blob = new Blob([workerCode], { type: 'application/javascript' });
+            wakeLockWorker = new Worker(URL.createObjectURL(blob));
+            
+            wakeLockWorker.postMessage('start');
+            wakeLockWorker.onmessage = (e) => {
+                // Просто обновляем timestamp
+                localStorage.setItem('_wakeLockPing', Date.now().toString());
+            };
+            
+            console.log('✅ Web Worker запущен');
+        } catch (err) {
+            console.log('❌ Web Worker не доступен:', err);
+        }
     }
 }
 
-// Специальные обходные пути для iOS
-function setupIOSWorkarounds() {
-    console.log('Setting up iOS workarounds');
+// === iOS PWA инструкция ===
+function setupIOSPWAPrompt() {
+    // Показываем только если iOS и не PWA
+    if (!isIOS || isPWA) return;
     
-    // Периодическое обновление заголовка (обход для iOS)
-    let titleCounter = 0;
-    const originalTitle = document.title;
+    // Проверяем, не скрывал ли пользователь ранее
+    if (localStorage.getItem('hidePWAPrompt') === 'true') return;
     
-    setInterval(() => {
-        titleCounter++;
-        if (titleCounter % 10 === 0) {
-            document.title = originalTitle + ' ';
+    // Показываем через 8 секунд после загрузки
+    setTimeout(() => {
+        const instruction = document.getElementById('pwa-instruction');
+        if (instruction) {
+            instruction.style.display = 'block';
+            
+            // Обработчики кнопок
+            document.getElementById('pwa-understand').addEventListener('click', () => {
+                instruction.style.display = 'none';
+                localStorage.setItem('hidePWAPrompt', 'true');
+                showNotification('📱 Запускайте из ярлыка на домашнем экране', 3000);
+            });
+            
+            document.getElementById('pwa-close').addEventListener('click', () => {
+                instruction.style.display = 'none';
+                showNotification('💡 На iOS экран может отключаться', 3000);
+            });
+            
+            // Автоскрытие через 20 секунд
             setTimeout(() => {
-                document.title = originalTitle;
-            }, 100);
+                if (instruction.style.display !== 'none') {
+                    instruction.style.display = 'none';
+                    localStorage.setItem('hidePWAPrompt', 'true');
+                }
+            }, 20000);
         }
-    }, 10000);
+    }, 8000);
+}
+
+// === Подсказка для первого клика ===
+function showFirstClickHint() {
+    const hint = document.getElementById('first-click-hint');
+    if (hint) {
+        hint.style.display = 'flex';
+        
+        // Скрываем после первого клика
+        canvas.addEventListener('click', () => {
+            hint.style.display = 'none';
+        }, { once: true });
+        
+        // Автоскрытие через 10 секунд
+        setTimeout(() => {
+            if (hint.style.display !== 'none') {
+                hint.style.display = 'none';
+            }
+        }, 10000);
+    }
+}
+
+// === Улучшенный полноэкранный режим ===
+function toggleFullscreen() {
+    if (!isFullscreen()) {
+        const elem = document.documentElement;
+        
+        // Пробуем все методы
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().catch(err => {
+                console.log('Полноэкранный режим не поддерживается:', err);
+            });
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+        } else if (elem.webkitEnterFullscreen) { // iOS
+            elem.webkitEnterFullscreen();
+        }
+        
+        // Для iOS - дополнительные уловки
+        if (isIOS) {
+            setupIOSFullscreenTricks();
+        }
+        
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        }
+    }
+}
+
+function setupIOSFullscreenTricks() {
+    // Создаём невидимую кнопку для периодической фокусировки
+    const focusBtn = document.createElement('button');
+    focusBtn.style.cssText = `
+        position: absolute;
+        width: 0;
+        height: 0;
+        opacity: 0;
+        pointer-events: none;
+    `;
+    focusBtn.textContent = ' ';
+    document.body.appendChild(focusBtn);
+    
+    // Периодическая фокусировка (каждые 25 сек)
+    const focusTimer = setInterval(() => {
+        if (isFullscreen()) {
+            focusBtn.focus();
+            setTimeout(() => canvas.focus(), 10);
+        } else {
+            clearInterval(focusTimer);
+            focusBtn.remove();
+        }
+    }, 25000);
 }
 
 // Функция скрытия контролов
@@ -227,44 +370,63 @@ function setupEventListeners() {
         autoSensitivity = manualSensitivity;
     });
 
-    canvas.addEventListener('click', toggleFullscreen);
+    // Клик по canvas делает полноэкран и запускает аудио wake lock
+    canvas.addEventListener('click', () => {
+        if (!isFullscreen()) {
+            toggleFullscreen();
+        }
+    });
     
     // Для iOS - дополнительные обработчики
     if (isIOS) {
+        // Перезапускаем аудио wake lock при любом клике
         document.addEventListener('click', () => {
-            // Перезапускаем Wake Lock при клике
-            if (wakeLock === null && 'wakeLock' in navigator) {
-                requestWakeLock();
+            if (audioWakeLock && !audioWakeLock.active) {
+                audioWakeLock.start();
             }
         });
-    }
-}
-
-// === Полный экран по клику ===
-function toggleFullscreen() {
-    if (!isFullscreen()) {
-        document.documentElement.requestFullscreen().catch(err => {
-            console.log('Полноэкранный режим не поддерживается');
-        });
-    } else {
-        document.exitFullscreen();
     }
 }
 
 // === Инициализация шоу ===
 async function initializeShow() {
     try {
+        // Показываем подсказку для первого клика
+        showFirstClickHint();
+        
+        // Настройка PWA инструкции для iOS
+        setupIOSPWAPrompt();
+        
+        // Запускаем Web Worker
+        startWakeLockWorker();
+        
+        // Инициализируем аудио wake lock
+        audioWakeLock = new AudioWakeLock();
+        audioWakeLock.init();
+        
         await synchronizeTime();
-        initializeNoSleep();
         await startMicrophone();
         startSynchronizedShow();
         setupEventListeners();
         setupAdditionalControls();
         setupAutoHideControls();
+        
+        // Автоматический полноэкран через 1 секунду после первого клика
+        setTimeout(() => {
+            if (!isFullscreen() && !isIOS) { // iOS не разрешает авто-полноэкран
+                toggleFullscreen();
+            }
+        }, 1000);
+        
         showNotification('🎵 Цветомузыка запущена!', 3000);
+        
     } catch (error) {
         console.error('Ошибка инициализации:', error);
-        initializeNoSleep();
+        
+        // Даже в демо-режиме запускаем системы wake lock
+        audioWakeLock.init();
+        startWakeLockWorker();
+        
         showNotification('🔇 Демо-режим', 3000);
         startDemoMode();
         setupEventListeners();
@@ -280,6 +442,8 @@ async function startMicrophone() {
     }
 
     try {
+        showNotification('🎤 Запрос доступа к микрофону...', 2000);
+        
         const stream = await navigator.mediaDevices.getUserMedia({
             audio: {
                 echoCancellation: false,
@@ -298,11 +462,13 @@ async function startMicrophone() {
         source = audioCtx.createMediaStreamSource(stream);
         source.connect(analyser);
 
-        console.log('Микрофон подключен');
+        console.log('✅ Микрофон подключен');
+        showNotification('✅ Микрофон подключен!', 2000);
         return true;
 
     } catch (error) {
-        console.error('Ошибка микрофона:', error);
+        console.error('❌ Ошибка микрофона:', error);
+        showNotification('❌ Доступ к микрофону отклонён', 3000);
         throw error;
     }
 }
@@ -843,21 +1009,21 @@ function updateControlsVisibility() {
     }
 }
 
-// Обработчик изменения видимости страницы для Wake Lock
-document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-        // Страница снова стала видимой - восстанавливаем wake lock
-        if (wakeLock !== null) {
-            requestWakeLock();
-        }
-    }
-});
-
 // Обработчики изменения полноэкранного режима
 document.addEventListener('fullscreenchange', updateControlsVisibility);
 document.addEventListener('webkitfullscreenchange', updateControlsVisibility);
 document.addEventListener('mozfullscreenchange', updateControlsVisibility);
 document.addEventListener('MSFullscreenChange', updateControlsVisibility);
+
+// Очистка при закрытии
+window.addEventListener('beforeunload', () => {
+    if (audioWakeLock) audioWakeLock.stop();
+    if (wakeLockWorker) {
+        wakeLockWorker.postMessage('stop');
+        wakeLockWorker.terminate();
+    }
+    if (wakeLock) wakeLock.release();
+});
 
 // Инициализация видимости контролов при загрузке
 updateControlsVisibility();

@@ -1,97 +1,37 @@
-<!DOCTYPE html>
-<html lang="ru">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>RocketDance</title>
-    <link rel="stylesheet" href="style.css">
-
-    <!-- 🔥 FAVICONS — полный рабочий набор для iPhone/Android/PC -->
-    <!-- Apple iPhone -->
-    <link rel="apple-touch-icon" sizes="180x180" href="favicon_180.png">
-
-    <!-- Standard PNG favicons -->
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon_16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon_32.png">
-    <link rel="icon" type="image/png" sizes="48x48" href="favicon_48.png">
-    <link rel="icon" type="image/png" sizes="64x64" href="favicon_64.png">
-    <link rel="icon" type="image/png" sizes="128x128" href="favicon_128.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="favicon_192.png">
-    <link rel="icon" type="image/png" sizes="256x256" href="favicon_256.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="favicon_512.png">
-    <link rel="icon" type="image/png" sizes="1024x1024" href="favicon_1024.png">
-
-    <!-- Optional SVG favicon -->
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-
-    <!-- iOS WebApp settings -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="RocketDance">
-    <meta name="mobile-web-app-capable" content="yes">
-
-    <!-- Colors -->
-    <meta name="application-name" content="RocketDance">
-    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
-    <meta name="msapplication-TileColor" content="#000000">
-</head>
-
-<body>
-    <canvas id="visualizer"></canvas>
-
-    <div id="centerText">RocketDance🌲</div>
-
-    <div class="controls">
-        <div class="controls-container">
-            <button class="side-button" id="qrButton" title="Показать QR-код">
-                <span class="button-icon">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M3 3h8v8H3z M3 13h8v8H3z M13 3h8v8h-8z M16 13h3v3h-3z M13 16h3v3h-3z M19 16h3v3h-3z M13 13h3v3h-3z" />
-                    </svg>
-                </span>
-            </button>
-
-            <div class="sensitivity-control">
-                <div class="sensitivity-header">
-                    <div class="sensitivity-label">Чувствительность</div>
+<!-- iOS PWA инструкция -->
+<div id="pwa-instruction" style="display: none;">
+    <div class="pwa-modal">
+        <div class="pwa-content">
+            <div class="pwa-icon">📱</div>
+            <h3>Для работы без отключения экрана</h3>
+            <p>Добавьте RocketDance на домашний экран</p>
+            <div class="pwa-steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    Нажмите <strong>кнопку "Поделиться"</strong> ↓ внизу
                 </div>
-                <div class="sensitivity-slider-container">
-                    <input type="range" id="sensitivitySlider" min="0.1" max="5.0" step="0.1" value="1.5">
+                <div class="step">
+                    <span class="step-number">2</span>
+                    Найдите <strong>"На экран "Домой"</strong> 📲
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    Нажмите <strong>"Добавить"</strong>
                 </div>
             </div>
-
-            <button class="side-button" id="bookmarkButton" title="Поделиться">
-                <span class="button-icon">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z" />
-                    </svg>
-                </span>
-            </button>
+            <div class="pwa-buttons">
+                <button id="pwa-close" class="pwa-button secondary">Позже</button>
+                <button id="pwa-understand" class="pwa-button primary">Понятно!</button>
+            </div>
         </div>
     </div>
+</div>
 
-    <!-- QR modal -->
-    <div class="qr-modal" id="qrModal">
-        <div class="qr-content">
-            <h3 style="color: white; margin-bottom: 15px;">Поделиться RocketDance</h3>
-            <canvas id="qrCode"></canvas>
-            <div class="qr-text">Отсканируйте QR-код чтобы открыть на другом устройстве</div>
-            <button class="close-qr" id="closeQr">Закрыть</button>
-        </div>
-    </div>
-
-    <div id="notification" class="notification"></div>
-
-    <!-- libs -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-    <script src="https://unpkg.com/nosleep.js@0.12.0/dist/NoSleep.min.js"></script>
-    <script src="script.js"></script>
+<!-- Точка для первого клика -->
+<div id="first-click-hint" style="display: none;">
+    <div class="click-hint"></div>
+    <div class="click-text">Нажмите для запуска</div>
+</div>
 
     <!-- Закомментировать в случае ненадобности -->
     <!-- Верхняя кнопка "Юра, прости!" -->
