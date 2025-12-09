@@ -935,7 +935,7 @@ body:-ms-fullscreen {
     }
 }
 
-/* Скрываем верхнюю кнопку в полноэкранном режиме */
+/* Скрываем верхнюю кнопку в полноэкранном режиме
 body:fullscreen .top-button,
 body:-webkit-full-screen .top-button,
 body:-moz-full-screen .top-button,
@@ -943,4 +943,4 @@ body:-ms-fullscreen .top-button {
     opacity: 0 !important;
     pointer-events: none !important;
     transition: opacity 0.3s ease !important;
-}
+} */

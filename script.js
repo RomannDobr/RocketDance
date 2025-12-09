@@ -189,16 +189,31 @@ function setupIOSWorkarounds() {
 // Функция скрытия контролов
 function hideControls() {
     const controls = document.querySelector('.controls');
+    const yuraButton = document.getElementById('yuraButton');
+    
     controls.style.opacity = '0';
     controls.style.pointerEvents = 'none';
     controls.style.transition = 'opacity 0.3s ease';
+    
+    if (yuraButton) {
+        yuraButton.style.opacity = '0';
+        yuraButton.style.pointerEvents = 'none';
+        yuraButton.style.transition = 'opacity 0.3s ease';
+    }
 }
 
 // Функция показа контролов
 function showControls() {
     const controls = document.querySelector('.controls');
+    const yuraButton = document.getElementById('yuraButton');
+    
     controls.style.opacity = '1';
     controls.style.pointerEvents = 'auto';
+    
+    if (yuraButton) {
+        yuraButton.style.opacity = '1';
+        yuraButton.style.pointerEvents = 'auto';
+    }
 }
 
 // Автоматическое скрытие контролов через 3 секунды
@@ -215,7 +230,7 @@ function setupAutoHideControls() {
 function showControlsTemporarily() {
     // Не показываем контролы в полноэкранном режиме
     if (isFullscreen()) return;
-
+    
     showControls();
     clearTimeout(controlsTimeout);
     hideControlsAfterTimeout();
@@ -934,10 +949,22 @@ window.addEventListener('resize', () => {
 
 // Обновленная функция проверки видимости контролов
 function updateControlsVisibility() {
+    const controls = document.querySelector('.controls');
+    const yuraButton = document.getElementById('yuraButton');
+    
     if (isFullscreen()) {
         hideControls();
+        if (yuraButton) {
+            yuraButton.style.opacity = '0';
+            yuraButton.style.pointerEvents = 'none';
+            yuraButton.style.transition = 'opacity 0.3s ease';
+        }
     } else {
         showControls();
+        if (yuraButton) {
+            yuraButton.style.opacity = '1';
+            yuraButton.style.pointerEvents = 'auto';
+        }
         // Запускаем таймер автоскрытия только если не в полноэкранном режиме
         hideControlsAfterTimeout();
     }
