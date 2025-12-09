@@ -86,38 +86,65 @@ async function reacquireWakeLock() {
 }
 
 function setupIOSAudioWorkaround() {
-    try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        oscillator.frequency.setValueAtTime(1, audioContext.currentTime);
+    // Флаг, чтобы не создавать workaround если микрофон уже работает
+    let audioWorkaroundInitialized = false;
+    
+    // Запускаем workaround только если микрофон не доступен или не используется
+    const initAudioWorkaround = () => {
+        if (audioWorkaroundInitialized || (analyser && audioCtx)) {
+            return; // Не запускаем если микрофон уже работает
+        }
         
-        const gainNode = audioContext.createGain();
-        gainNode.gain.setValueAtTime(0.000001, audioContext.currentTime);
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        oscillator.start();
-        
-        // Приостанавливаем чтобы не тратить заряд
-        setTimeout(() => {
-            if (audioContext.state === 'running') {
-                audioContext.suspend();
-            }
-        }, 100);
-        
-        // Активируем при касании
-        const activateAudio = () => {
-            if (audioContext.state === 'suspended') {
-                audioContext.resume();
-            }
-        };
-        
-        document.addEventListener('touchstart', activateAudio, { once: true });
-        document.addEventListener('click', activateAudio, { once: true });
-        
-    } catch (error) {
-        console.warn('iOS audio workaround не сработал:', error);
-    }
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            oscillator.frequency.setValueAtTime(1, audioContext.currentTime);
+            
+            const gainNode = audioContext.createGain();
+            gainNode.gain.setValueAtTime(0.000001, audioContext.currentTime);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.start();
+            
+            // Сразу приостанавливаем чтобы не мешать микрофону
+            setTimeout(() => {
+                if (audioContext.state === 'running') {
+                    audioContext.suspend();
+                }
+            }, 50);
+            
+            audioWorkaroundInitialized = true;
+            
+            // Останавливаем workaround когда микрофон заработает
+            const stopWorkaround = () => {
+                try {
+                    oscillator.stop();
+                    audioContext.close();
+                } catch (e) {}
+                audioWorkaroundInitialized = false;
+            };
+            
+            // Проверяем каждые 2 секунды, не запустился ли микрофон
+            const checkInterval = setInterval(() => {
+                if (analyser && audioCtx && audioCtx.state === 'running') {
+                    stopWorkaround();
+                    clearInterval(checkInterval);
+                }
+            }, 2000);
+            
+        } catch (error) {
+            console.log('iOS audio workaround не требуется или не удался');
+        }
+    };
+    
+    // Запускаем workaround с задержкой, чтобы дать микрофону шанс сначала
+    setTimeout(initAudioWorkaround, 3000);
+    
+    // Также запускаем при касании (fallback)
+    document.addEventListener('touchstart', () => {
+        setTimeout(initAudioWorkaround, 100);
+    }, { once: true, passive: true });
 }
 
 // Legacy NoSleep для старых браузеров
@@ -301,6 +328,10 @@ async function initializeShow() {
     try {
         await synchronizeTime();
         initializeNoSleep();
+        
+        // Даем время на инициализацию NoSleep перед запросом микрофона
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         await startMicrophone();
         startSynchronizedShow();
         setupEventListeners();
@@ -309,8 +340,15 @@ async function initializeShow() {
         showNotification('🎵 Цветомузыка запущена!', 3000);
     } catch (error) {
         console.error('Ошибка инициализации:', error);
+        
+        // Проверяем конкретную ошибку микрофона
+        if (error.name === 'NotAllowedError' || error.name === 'NotFoundError') {
+            showNotification('🎵 Демо-режим (микрофон не доступен)', 3000);
+        } else {
+            showNotification('🎵 Демо-режим', 3000);
+        }
+        
         initializeNoSleep();
-        showNotification('🔇 Демо-режим', 3000);
         startDemoMode();
         setupEventListeners();
         setupAdditionalControls();
@@ -325,6 +363,9 @@ async function startMicrophone() {
     }
 
     try {
+        // Показываем уведомление о запросе доступа
+        showNotification('🔈 Запрос доступа к микрофону...', 2000);
+        
         const stream = await navigator.mediaDevices.getUserMedia({
             audio: {
                 echoCancellation: false,
@@ -344,10 +385,24 @@ async function startMicrophone() {
         source.connect(analyser);
 
         console.log('Микрофон подключен');
+        
+        // Убираем уведомление о демо-режиме если оно есть
+        showNotification('🎤 Микрофон подключен!', 2000);
+        
         return true;
 
     } catch (error) {
         console.error('Ошибка микрофона:', error);
+        
+        // Показываем понятное уведомление об ошибке
+        if (error.name === 'NotAllowedError') {
+            showNotification('❌ Доступ к микрофону запрещен', 3000);
+        } else if (error.name === 'NotFoundError') {
+            showNotification('❌ Микрофон не найден', 3000);
+        } else {
+            showNotification('❌ Ошибка микрофона', 3000);
+        }
+        
         throw error;
     }
 }
